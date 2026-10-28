@@ -1,18 +1,18 @@
 {
   "schemaVersion": 2,
   "toolVersion": "0.2.0",
-  "sourceFingerprint": "3ef34e86e63cd4ed01fbf8bcc53b4f4e077c6cbcd80ae125d5951e846258ab7a",
-  "runId": "71bfacaa-a352-46c6-97c4-407c3f3ea26d",
+  "sourceFingerprint": "1b2a66362e47cb3f4c3637eeaa2d32988c152757b86a62eb55afb89f44f5d827",
+  "runId": "de6f381c-95a6-4eeb-8421-4067655fd58d",
   "mode": "live",
-  "startedAt": "2026-10-28T19:10:07.617Z",
-  "finishedAt": "2026-10-28T19:10:09.465Z",
-  "nodeVersion": "v24.21.0",
-  "platform": "darwin/arm64",
+  "startedAt": "2026-10-28T19:27:38.633Z",
+  "finishedAt": "2026-10-28T19:27:39.276Z",
+  "nodeVersion": "v24.22.1",
+  "platform": "linux/x64",
   "config": {
     "profile": "supabase",
-    "bucket": "sd-b902de51-8f7e-45e5-8790-56e3600e0601",
+    "bucket": "sd-eee78367-1aac-459a-a4b0-8680c8dc04b9",
     "seed": "storage-doctor-v1",
-    "targetVersion": "public.ecr.aws/supabase/storage-api:v1.84.19",
+    "targetVersion": "supabase/storage-api:v1.84.19",
     "timeoutMs": 5000,
     "region": "local",
     "restUrl": "http://127.0.0.1:55431/storage/v1",
@@ -27,7 +27,7 @@
     "cleanupDeadlineMs": 30000
   },
   "payloadSha256": "4c822de1f455a5133fc8ab404ac2ac25aecb541ce4c7a4d3c51e2cd337604280",
-  "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670",
+  "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743",
   "results": [
     {
       "id": "s3-roundtrip",
@@ -45,19 +45,19 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 449,
+      "ms": 67,
       "trace": [
         {
           "protocol": "s3",
           "operation": "PutObjectCommand",
           "status": 200,
-          "ms": 403
+          "ms": 53
         },
         {
           "protocol": "s3",
           "operation": "GetObjectCommand",
           "status": 200,
-          "ms": 46
+          "ms": 14
         }
       ],
       "cleanup": {
@@ -68,7 +68,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 26
+            "ms": 12
           }
         ]
       },
@@ -76,7 +76,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "s3-roundtrip"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "s3-empty",
@@ -94,19 +94,19 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 114,
+      "ms": 24,
       "trace": [
         {
           "protocol": "s3",
           "operation": "PutObjectCommand",
           "status": 200,
-          "ms": 44
+          "ms": 16
         },
         {
           "protocol": "s3",
           "operation": "GetObjectCommand",
           "status": 200,
-          "ms": 70
+          "ms": 8
         }
       ],
       "cleanup": {
@@ -117,7 +117,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 199
+            "ms": 11
           }
         ]
       },
@@ -125,7 +125,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "s3-empty"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "s3-path",
@@ -143,19 +143,19 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 142,
+      "ms": 25,
       "trace": [
         {
           "protocol": "s3",
           "operation": "PutObjectCommand",
           "status": 200,
-          "ms": 127
+          "ms": 16
         },
         {
           "protocol": "s3",
           "operation": "GetObjectCommand",
           "status": 200,
-          "ms": 15
+          "ms": 9
         }
       ],
       "cleanup": {
@@ -166,7 +166,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 17
+            "ms": 12
           }
         ]
       },
@@ -174,7 +174,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "s3-path"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "s3-range",
@@ -192,67 +192,18 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 26,
+      "ms": 23,
       "trace": [
         {
           "protocol": "s3",
           "operation": "PutObjectCommand",
           "status": 200,
-          "ms": 18
+          "ms": 15
         },
         {
           "protocol": "s3",
           "operation": "GetObjectCommand",
           "status": 206,
-          "ms": 7
-        }
-      ],
-      "cleanup": {
-        "status": "passed",
-        "warnings": [],
-        "trace": [
-          {
-            "protocol": "s3",
-            "operation": "DeleteObjectCommand",
-            "status": 204,
-            "ms": 10
-          }
-        ]
-      },
-      "reproduction": {
-        "seed": "storage-doctor-v1",
-        "scenario": "s3-range"
-      },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
-    },
-    {
-      "id": "s3-metadata",
-      "title": "Content type and user metadata roundtrip",
-      "description": "Content type and user metadata roundtrip. Uses only disposable run-owned objects.",
-      "protocols": [
-        "s3"
-      ],
-      "prerequisites": [
-        "Dedicated local bucket",
-        "Valid credentials for the selected protocols"
-      ],
-      "expected": "HEAD returns the written content type, user metadata and byte length.",
-      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html",
-      "status": "passed",
-      "reason": "All scenario assertions passed.",
-      "reasonCode": "assertions",
-      "ms": 31,
-      "trace": [
-        {
-          "protocol": "s3",
-          "operation": "PutObjectCommand",
-          "status": 200,
-          "ms": 23
-        },
-        {
-          "protocol": "s3",
-          "operation": "HeadObjectCommand",
-          "status": 200,
           "ms": 7
         }
       ],
@@ -270,9 +221,58 @@
       },
       "reproduction": {
         "seed": "storage-doctor-v1",
+        "scenario": "s3-range"
+      },
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
+    },
+    {
+      "id": "s3-metadata",
+      "title": "Content type and user metadata roundtrip",
+      "description": "Content type and user metadata roundtrip. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "HEAD returns the written content type, user metadata and byte length.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 23,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 15
+        },
+        {
+          "protocol": "s3",
+          "operation": "HeadObjectCommand",
+          "status": 200,
+          "ms": 8
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 8
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
         "scenario": "s3-metadata"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "rest-to-s3",
@@ -291,13 +291,13 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 26,
+      "ms": 21,
       "trace": [
         {
           "protocol": "rest",
           "operation": "POST",
           "status": 200,
-          "ms": 19
+          "ms": 14
         },
         {
           "protocol": "s3",
@@ -314,7 +314,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 11
+            "ms": 8
           }
         ]
       },
@@ -322,7 +322,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "rest-to-s3"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "s3-to-rest",
@@ -341,19 +341,19 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 22,
+      "ms": 21,
       "trace": [
         {
           "protocol": "s3",
           "operation": "PutObjectCommand",
           "status": 200,
-          "ms": 14
+          "ms": 13
         },
         {
           "protocol": "rest",
           "operation": "GET",
           "status": 200,
-          "ms": 7
+          "ms": 8
         }
       ],
       "cleanup": {
@@ -364,7 +364,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 10
+            "ms": 9
           }
         ]
       },
@@ -372,7 +372,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "s3-to-rest"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "rest-overwrite-s3",
@@ -391,19 +391,19 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 38,
+      "ms": 31,
       "trace": [
         {
           "protocol": "s3",
           "operation": "PutObjectCommand",
           "status": 200,
-          "ms": 17
+          "ms": 12
         },
         {
           "protocol": "rest",
           "operation": "POST",
           "status": 200,
-          "ms": 15
+          "ms": 13
         },
         {
           "protocol": "s3",
@@ -420,7 +420,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 10
+            "ms": 7
           }
         ]
       },
@@ -428,7 +428,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "rest-overwrite-s3"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "s3-delete-rest",
@@ -447,31 +447,31 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 39,
+      "ms": 53,
       "trace": [
         {
           "protocol": "s3",
           "operation": "PutObjectCommand",
           "status": 200,
-          "ms": 17
+          "ms": 12
         },
         {
           "protocol": "rest",
           "operation": "GET",
           "status": 200,
-          "ms": 6
+          "ms": 5
         },
         {
           "protocol": "s3",
           "operation": "DeleteObjectCommand",
           "status": 204,
-          "ms": 9
+          "ms": 23
         },
         {
           "protocol": "rest",
           "operation": "GET",
           "status": 400,
-          "ms": 6
+          "ms": 13
         }
       ],
       "cleanup": {
@@ -482,7 +482,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 7
+            "ms": 8
           }
         ]
       },
@@ -490,7 +490,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "s3-delete-rest"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     },
     {
       "id": "tus-resume-cross",
@@ -510,13 +510,13 @@
       "status": "passed",
       "reason": "All scenario assertions passed.",
       "reasonCode": "assertions",
-      "ms": 635,
+      "ms": 251,
       "trace": [
         {
           "protocol": "tus",
           "operation": "POST",
           "status": 201,
-          "ms": 19
+          "ms": 17
         },
         {
           "protocol": "tus",
@@ -528,19 +528,19 @@
           "protocol": "tus",
           "operation": "PATCH",
           "status": 204,
-          "ms": 263
+          "ms": 66
         },
         {
           "protocol": "tus",
           "operation": "HEAD",
           "status": 200,
-          "ms": 10
+          "ms": 14
         },
         {
           "protocol": "tus",
           "operation": "PATCH",
           "status": 409,
-          "ms": 32
+          "ms": 10
         },
         {
           "protocol": "tus",
@@ -552,19 +552,19 @@
           "protocol": "tus",
           "operation": "PATCH",
           "status": 204,
-          "ms": 103
+          "ms": 28
         },
         {
           "protocol": "s3",
           "operation": "GetObjectCommand",
           "status": 200,
-          "ms": 109
+          "ms": 47
         },
         {
           "protocol": "rest",
           "operation": "GET",
           "status": 200,
-          "ms": 82
+          "ms": 48
         }
       ],
       "cleanup": {
@@ -575,7 +575,7 @@
             "protocol": "s3",
             "operation": "DeleteObjectCommand",
             "status": 204,
-            "ms": 19
+            "ms": 17
           }
         ]
       },
@@ -583,7 +583,7 @@
         "seed": "storage-doctor-v1",
         "scenario": "tus-resume-cross"
       },
-      "environmentFingerprint": "8c2566d30491adc282aa59b0942d6ec299e8af7b22ff0257553370f79a065670"
+      "environmentFingerprint": "e94d1b145e81ddc6370b6893da4fa6fc359326a7c08956f7019a9666f61d0743"
     }
   ],
   "cleanupWarnings": [],

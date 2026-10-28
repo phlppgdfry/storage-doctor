@@ -55,3 +55,11 @@ Pattern scan and manual review covered all 31 historical blobs plus the tracked 
 Five local help-start samples varied between 102 and 1749 ms; five HTML-render samples varied between 0.106 and 0.666 ms on this busy host. This small noisy sample does not justify a speed claim or architecture change. Parent RSS was about 74 MB, not measured child peak memory. The packed artifact size from the clean-consumer check was about 43 KB before final documentation updates; exact release size is recorded by the final package check.
 
 Remaining limitations: external developer demand unvalidated; no hostile-kernel/tunnel protection; no production/RLS/load/crash-recovery coverage; no other provider validation; HTML has semantic/escaping checks but no independent visual/accessibility certification. Remote CI and Action status are recorded separately in [release readiness](release.md).
+
+### Remote Linux validation
+
+[Service and composite Action run 40754252153](https://github.com/phlppgdfry/storage-doctor/actions/runs/40754252153) passed on Linux/x64: all ten real Supabase scenarios, a three-check core Action run, exact owned-resource cleanup and artifact upload. The checked-in 0.2.0 snapshot now comes from that run; its source fingerprint was compared to the local candidate and matched. The prior macOS snapshots remain in local upgrade evidence.
+
+The initial [fast CI run](https://github.com/phlppgdfry/storage-doctor/actions/runs/40753324276) failed its Node 24 offline-consumer step with ENOTCACHED: npm ci had cached package archives without the metadata a fresh install resolution expected. The smoke now constructs a consumer lockfile from the audited dependency graph and uses npm ci --offline; it does not drop offline validation. Local replay of that fixed consumer passed. Follow-up remote fast-CI evidence is recorded in release.md.
+
+A direct IPv6 loopback request also passed on macOS. Cross-platform browser visual inspection remains unverified; no accessibility certification is claimed.

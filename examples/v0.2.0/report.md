@@ -1,6 +1,6 @@
 # Storage Doctor
 
-Mode: **live** · Target: `public.ecr.aws/supabase/storage-api:v1.84.19` · 2026-10-28T19:10:07.617Z
+Mode: **live** · Target: `supabase/storage-api:v1.84.19` · 2026-10-28T19:27:38.633Z
 
 These observations describe this run, not universal compatibility or a confirmed upstream defect.
 

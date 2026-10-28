@@ -54,3 +54,7 @@ Adoption and upstream merges must be linked only after they happen. This project
 - If new infrastructure is not needed to answer a concrete question, do not build it.
 - If an isolated run exceeds 80 exploration requests or its 120-second exploration deadline, stop exploration and clean up owned resources.
 - If an experiment needs production endpoints, destructive shared-resource changes or vulnerability publication, it is outside the authorized local workflow.
+
+## Optional AI design boundary
+
+If user feedback justifies it, an explicitly invoked analysis command may consume the same validated evidence schema and return labelled hypotheses with links to observations. It must need a separate provider configuration, an explicit per-call token/cost limit and consent before sending any report to that provider. No credentials or raw bodies belong in the payload. It must never execute suggested commands, alter config, create issues or apply patches. The deterministic CLI and evidence export remain sufficient without it. No provider implementation or model call is currently shipped.

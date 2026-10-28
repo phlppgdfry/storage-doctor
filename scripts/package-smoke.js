@@ -1,6 +1,6 @@
 import { execFileSync, execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdtemp, writeFile, rm, mkdir } from "node:fs/promises";
+import { mkdtemp, writeFile, readFile, rm, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import assert from "node:assert/strict";
@@ -18,15 +18,50 @@ try {
   assert.ok(artifact?.filename);
   const consumer = join(directory, "consumer");
   await mkdir(consumer);
+  const archive = join(directory, artifact.filename);
+  const dependency = `file:${archive}`;
+  const rootLock = JSON.parse(await readFile("package-lock.json", "utf8"));
+  const rootPackage = JSON.parse(await readFile("package.json", "utf8"));
+  const consumerPackage = {
+    name: "storage-doctor-consumer",
+    private: true,
+    dependencies: { "storage-doctor": dependency },
+  };
   await writeFile(
     join(consumer, "package.json"),
-    JSON.stringify({ name: "storage-doctor-consumer", private: true }),
+    JSON.stringify(consumerPackage),
+  );
+  // npm ci caches archive bytes, not necessarily registry metadata. Seed the
+  // consumer graph from the audited lockfile so OFFLINE really needs no registry.
+  const consumerLock = {
+    name: consumerPackage.name,
+    lockfileVersion: 3,
+    requires: true,
+    packages: {
+      ...rootLock.packages,
+      "": {
+        name: consumerPackage.name,
+        dependencies: consumerPackage.dependencies,
+      },
+      "node_modules/storage-doctor": {
+        version: rootPackage.version,
+        resolved: dependency,
+        integrity: artifact.integrity,
+        license: rootPackage.license,
+        dependencies: rootPackage.dependencies,
+        bin: rootPackage.bin,
+        engines: rootPackage.engines,
+      },
+    },
+  };
+  await writeFile(
+    join(consumer, "package-lock.json"),
+    JSON.stringify(consumerLock),
   );
   execFileSync(
     "npm",
     [
-      "install",
-      join(directory, artifact.filename),
+      "ci",
       "--offline",
       "--ignore-scripts",
       "--omit=dev",
