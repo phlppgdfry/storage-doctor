@@ -1,0 +1,43 @@
+name: Storage Doctor
+description: Diagnose an already provisioned disposable loopback storage target and upload evidence.
+branding:
+  icon: hard-drive
+  color: green
+inputs:
+  profile:
+    description: supabase or s3; credentials and endpoint URLs are supplied as SD_* environment variables.
+    default: supabase
+  pack:
+    description: all, core, s3, cross-protocol or tus.
+    default: all
+outputs:
+  report-directory:
+    description: Absolute path of generated evidence.
+    value: ${{ steps.output.outputs.directory }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: "24"
+    - shell: bash
+      working-directory: ${{ github.action_path }}
+      run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+    - id: output
+      shell: bash
+      run: |
+        parent=$(mktemp -d "$RUNNER_TEMP/storage-doctor.XXXXXX")
+        echo "directory=$parent/evidence" >> "$GITHUB_OUTPUT"
+    - shell: bash
+      env:
+        SD_PROFILE: ${{ inputs.profile }}
+        SD_ACTION_PACK: ${{ inputs.pack }}
+        SD_ACTION_OUT: ${{ steps.output.outputs.directory }}
+      run: node "$GITHUB_ACTION_PATH/src/cli.js" check --local --ci --pack "$SD_ACTION_PACK" --out "$SD_ACTION_OUT"
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      if: always()
+      with:
+        name: storage-doctor-${{ github.job }}-${{ github.run_attempt }}
+        path: ${{ steps.output.outputs.directory }}
+        if-no-files-found: warn
+        retention-days: 7

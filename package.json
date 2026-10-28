@@ -1,6 +1,6 @@
 {
   "name": "storage-doctor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local object storage diagnostics with cross-protocol evidence reports",
   "type": "module",
   "license": "MIT",
@@ -25,16 +25,25 @@
     "check": "node src/cli.js check --local",
     "demo": "node scripts/demo.js",
     "integration": "node scripts/integration.js",
-    "verify": "npm run format:check && npm test && npm run demo",
-    "format": "prettier --write src test scripts docs README.md CONTRIBUTING.md SECURITY.md package.json .github",
-    "format:check": "prettier --check src test scripts docs README.md CONTRIBUTING.md SECURITY.md package.json .github",
-    "package:smoke": "node scripts/package-smoke.js"
+    "verify": "npm run format:check && npm run check:syntax && npm run docs:check && npm test && npm run demo",
+    "format": "prettier --write src test scripts docs README.md CONTRIBUTING.md SECURITY.md package.json .github action.yml CHANGELOG.md AGENTS.md",
+    "format:check": "prettier --check src test scripts docs README.md CONTRIBUTING.md SECURITY.md package.json .github action.yml CHANGELOG.md AGENTS.md",
+    "package:smoke": "node scripts/package-smoke.js",
+    "check:syntax": "node scripts/check-source.js",
+    "docs:check": "node scripts/check-docs.js"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "3.1158.0",
-    "@smithy/node-http-handler": "4.13.0"
+    "@aws-sdk/client-s3": "3.1158.0"
   },
   "devDependencies": {
     "prettier": "3.9.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phlppgdfry/storage-doctor.git"
+  },
+  "homepage": "https://github.com/phlppgdfry/storage-doctor#readme",
+  "bugs": {
+    "url": "https://github.com/phlppgdfry/storage-doctor/issues"
   }
 }

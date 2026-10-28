@@ -147,6 +147,20 @@ export const scenarios = [
       await a.tusHead(url, 0);
       await a.tusPatch(url, 0, first);
       await a.tusHead(url, first.length);
+      a.ok(
+        await a.http(
+          "PATCH",
+          url,
+          {
+            "tus-resumable": "1.0.0",
+            "upload-offset": "0",
+            "content-type": "application/offset+octet-stream",
+          },
+          b,
+        ),
+        [409],
+      );
+      await a.tusHead(url, first.length);
       await a.tusPatch(url, first.length, b);
       a.uploads.delete(url); // Completed upload is cleaned as an object, not an active upload.
       same((await a.get(k)).bytes, full);
@@ -154,3 +168,28 @@ export const scenarios = [
     },
   },
 ];
+
+const s3Reference =
+  "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html";
+for (const scenario of scenarios) {
+  scenario.description =
+    scenario.title + ". Uses only disposable run-owned objects.";
+  scenario.prerequisites = [
+    "Dedicated local bucket",
+    "Valid credentials for the selected protocols",
+  ];
+  scenario.expected =
+    scenario.id === "s3-delete-rest"
+      ? "A previously readable object is absent after S3 deletion."
+      : scenario.id === "tus-resume-cross"
+        ? "TUS preserves offsets and publishes identical completed bytes through REST and S3."
+        : scenario.id === "s3-metadata"
+          ? "HEAD returns the written content type, user metadata and byte length."
+          : scenario.id === "s3-range"
+            ? "The requested byte slice, status 206 and Content-Range agree."
+            : "The bytes read match the bytes written through the selected protocol(s).";
+  scenario.reference =
+    scenario.protocols.length > 1
+      ? "https://supabase.com/docs/guides/storage/s3/compatibility"
+      : s3Reference;
+}

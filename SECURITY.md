@@ -1,9 +1,15 @@
 # Security
 
-Run only against isolated local test environments using disposable credentials and dedicated buckets. The initial release rejects non-loopback targets. Do not tunnel a production system onto loopback and treat it as a test system.
+Use only disposable local targets and credentials. `check` writes, reads and deletes exact keys under its unique `doctor/UUID/` namespace in an existing dedicated bucket; it never empties or deletes buckets. The repository integration helper separately creates and deletes only its own unique private test bucket. Concurrent-run ownership and cleanup after partial failure/cancellation are tested.
 
-Reports omit credentials and bodies by design, but retain local endpoint and bucket identities. Review them before sharing. Exported files, checksums and replay recipes are not independently authenticated evidence.
+Only literal loopback addresses are accepted, at configuration and execution boundaries. Direct sockets avoid global proxy/fetch settings, validate the connected address and enforce TLS validation. Redirects are refused. A loopback tunnel to production is not a safe test environment and cannot be detected reliably. Hostile kernels, compromised local services or instrumentation of the Node process are outside this model.
 
-For suspected Storage Doctor vulnerabilities, do not publish secrets or exploit details in public issues. This local project has no published reporting contact yet; arrange a private reporting route before a public release.
+Limits: 80 exploration requests, 120-second campaign, one sequential request at a time, one attempt, 8 MiB per request/response including S3 error XML, bounded headers, 30-second aggregate cleanup. SIGINT/SIGTERM cancel exploration and permit cleanup; SIGKILL/crashes cannot. Cleanup failures make automation fail; manually remove only the listed disposable keys when access recovers.
 
-For a suspected Supabase vulnerability, follow [Supabase's security policy](https://github.com/supabase/storage/blob/master/SECURITY.md). Do not publish exploit details or submit automated public findings.
+Reports exclude authorization headers, raw response bodies and credential objects. Strict imports reject unknown fields, malformed values and recognizable credential formats; no detector can recognize every arbitrary secret disguised as a user-written label. Review public identifiers before sharing. New output directories and exclusive files prevent accidental overwrite and symlink replacement. Bundles include all evidence files in their checksums; this verifies integrity, not authorship.
+
+## Private reporting
+
+Use [GitHub private vulnerability reporting](https://github.com/phlppgdfry/storage-doctor/security/advisories/new) for suspected Storage Doctor vulnerabilities. Publication is gated on enabling and verifying that route. Do not place credentials or exploit details in a public issue. There is no promised response SLA.
+
+Supabase findings follow [Supabase's policy](https://github.com/supabase/storage/blob/master/SECURITY.md). Storage Doctor never submits findings, posts reports or contacts maintainers automatically.

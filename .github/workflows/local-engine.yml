@@ -7,22 +7,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
           cache: npm
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb
         with:
           version: 2.122.0
       - run: npm ci
-      - run: supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - run: supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > "$RUNNER_TEMP/storage-doctor-start.log" 2>&1
       - run: npm run integration
-      - uses: actions/upload-artifact@v4
+      - id: action-bucket
+        run: node scripts/integration.js --provision-action
+      - uses: ./
+        with:
+          profile: supabase
+          pack: core
+      - run: node scripts/integration.js --cleanup-action
+        if: always() && steps.action-bucket.outcome == 'success'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: local-engine-evidence
-          path: reports/integration/
+          path: reports/integration-*/
           retention-days: 7
       - run: supabase stop
         if: always()

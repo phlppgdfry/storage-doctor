@@ -37,3 +37,21 @@ The first sandboxed test attempt could not bind a loopback socket (`EPERM`). The
 - The HTML artifact has rendering/escaping checks in the harness; native browser inspection was blocked by the browser's local-file URL policy.
 
 Re-run all commands from README to generate fresh observations. Ten passing scenarios establish only those specific checks under the recorded configuration.
+
+## 0.2.0 upgrade verification
+
+The baseline was independently re-run before edits on Node v24.21.0 / npm 12.1.0 / macOS arm64 with Supabase CLI 2.122.0: ten harness tests and the original package smoke passed.
+
+The upgraded local suite passes **22 tests**, including **12 independently authored security regressions**. Separate review reproduced the baseline ambient-proxy canary and verified the fix using only loopback traffic and generated credentials. Tests cover oversized error XML before SDK parsing, stalled bodies, hostile/nested report fields, symlinks, tampering, cancellation and concurrent ownership. No unresolved critical finding remains in reviewed paths.
+
+Two upgraded all-scenario runs against Supabase Storage v1.84.19 each passed **10/10**, with no cleanup warnings. The latest source-fingerprinted snapshot is retained in [examples/v0.2.0](../examples/v0.2.0/report.json); old schema 1 evidence is untouched.
+
+Both the integrated smoke and an independent fresh offline consumer executed doctor/list/check/report/export/verify/plan through the installed binary. The independent consumer's core fixture checks passed 3/3; fixtures are not vendor compatibility evidence. Local full CLI package smoke also exercised JSON and quiet output.
+
+A real-run rest-to-s3 bundle was exported and its five evidence files verified. Named replay against a fresh dedicated local bucket is recorded in the upgrade logs; it is not proof of an independent upstream finding.
+
+Pattern scan and manual review covered all 31 historical blobs plus the tracked candidate before initial push, with no credential findings. Pattern scanning is not an assurance against every possible secret representation. A dependency audit returned zero reported production vulnerabilities at the time of the check; this is registry evidence, not a complete security assessment.
+
+Five local help-start samples varied between 102 and 1749 ms; five HTML-render samples varied between 0.106 and 0.666 ms on this busy host. This small noisy sample does not justify a speed claim or architecture change. Parent RSS was about 74 MB, not measured child peak memory. The packed artifact size from the clean-consumer check was about 43 KB before final documentation updates; exact release size is recorded by the final package check.
+
+Remaining limitations: external developer demand unvalidated; no hostile-kernel/tunnel protection; no production/RLS/load/crash-recovery coverage; no other provider validation; HTML has semantic/escaping checks but no independent visual/accessibility certification. Remote CI and Action status are recorded separately in [release readiness](release.md).

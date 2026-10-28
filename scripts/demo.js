@@ -9,12 +9,13 @@ try {
   const report = await run(loadConfig(fixtureEnv(fixture.base)), {
     mode: "fixture",
   });
-  await writeReport(report, "reports/demo");
+  const directory = `reports/demo-${report.runId}`;
+  await writeReport(report, directory);
   console.log(
     "PROTOCOL FIXTURE — does not establish real storage compatibility.",
   );
   for (const r of report.results) console.log(`${r.status.padEnd(13)} ${r.id}`);
-  console.log("Report: reports/demo/report.html");
+  console.log(`Report: ${directory}/report.html`);
   process.exitCode = report.exitCode;
 } finally {
   await fixture.close();

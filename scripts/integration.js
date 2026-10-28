@@ -1,9 +1,12 @@
 // The CLI status output stays in memory: never log its credentials.
 import { execFileSync } from "node:child_process";
+import { readFile, writeFile, appendFile } from "node:fs/promises";
+import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { loadConfig } from "../src/config.js";
 import { run } from "../src/runner.js";
 import { writeReport } from "../src/report.js";
+import { directRequest } from "../src/transport.js";
 const workdir = new URL("..", import.meta.url).pathname;
 let status;
 try {
@@ -62,12 +65,35 @@ const config = loadConfig({
   SD_BUCKET: `sd-${randomUUID()}`,
 });
 const bucketUrl = `${config.restUrl}/bucket`;
+const actionState = process.env.RUNNER_TEMP
+  ? join(process.env.RUNNER_TEMP, "storage-doctor-owned-bucket.json")
+  : null;
+if (process.argv[2] === "--cleanup-action") {
+  if (!actionState) throw new Error("Action cleanup requires runner state.");
+  const state = JSON.parse(await readFile(actionState, "utf8"));
+  if (!/^sd-[0-9a-f-]{36}$/.test(state.bucket))
+    throw new Error("Invalid owned bucket state.");
+  const result = await directRequest(`${bucketUrl}/${state.bucket}`, {
+    method: "DELETE",
+    headers: { authorization: `Bearer ${token}`, apikey: token },
+    timeoutMs: 10000,
+  });
+  if (![200, 204, 404].includes(result.status))
+    throw new Error("Owned action bucket cleanup failed.");
+  console.log("Owned Action bucket cleanup passed.");
+  process.exit(0);
+}
+if (
+  process.argv[2] === "--provision-action" &&
+  (!actionState || !process.env.GITHUB_ENV)
+)
+  throw new Error("Action provisioning requires GitHub runner environment.");
 const headers = {
   authorization: `Bearer ${token}`,
   apikey: token,
   "content-type": "application/json",
 };
-const created = await fetch(bucketUrl, {
+const created = await directRequest(bucketUrl, {
   method: "POST",
   headers,
   body: JSON.stringify({
@@ -75,34 +101,68 @@ const created = await fetch(bucketUrl, {
     name: config.bucket,
     public: false,
   }),
-  redirect: "error",
+  timeoutMs: 10000,
   signal: AbortSignal.timeout(10000),
 });
-if (!created.ok) {
+if (![200, 201].includes(created.status)) {
   console.error(`Could not provision dedicated bucket: HTTP ${created.status}`);
-  await created.body?.cancel();
+
   process.exit(2);
 }
-await created.body?.cancel();
+
+if (process.argv[2] === "--provision-action") {
+  await writeFile(actionState, JSON.stringify({ bucket: config.bucket }), {
+    mode: 0o600,
+    flag: "wx",
+  });
+  const values = {
+    SD_PROFILE: "supabase",
+    SD_BUCKET: config.bucket,
+    SD_REST_URL: config.restUrl,
+    SD_S3_URL: config.s3Url,
+    SD_TUS_URL: config.tusUrl,
+    SD_TOKEN: token,
+    SD_API_KEY: token,
+    SD_ACCESS_KEY_ID: access,
+    SD_SECRET_ACCESS_KEY: secret,
+    SD_REGION: config.region,
+    SD_TARGET_VERSION: config.targetVersion,
+  };
+  for (const value of [token, access, secret])
+    console.log(`::add-mask::${value}`);
+  await appendFile(
+    process.env.GITHUB_ENV,
+    Object.entries(values)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("\n") + "\n",
+  );
+  console.log(
+    "Dedicated private Action bucket provisioned; credentials masked.",
+  );
+  process.exit(0);
+}
+
 let report;
 try {
-  report = await run(config);
+  report = await run(config, { only: process.argv[2] });
 } finally {
-  const removed = await fetch(`${bucketUrl}/${config.bucket}`, {
+  const removed = await directRequest(`${bucketUrl}/${config.bucket}`, {
     method: "DELETE",
     headers,
-    redirect: "error",
+    timeoutMs: 10000,
     signal: AbortSignal.timeout(10000),
   }).catch(() => null);
-  if (removed) await removed.body?.cancel();
-  if (report && !removed?.ok) {
+
+  if (report && !removed?.status.toString().startsWith("2")) {
     report.cleanupWarnings.push(
       `Dedicated bucket cleanup failed: ${config.bucket}`,
     );
     report.exitCode = 2;
   }
 }
-await writeReport(report, "reports/integration");
+const reportDirectory = `reports/integration-${report.runId}`;
+await writeReport(report, reportDirectory);
+console.log(`Evidence: ${reportDirectory}`);
 console.log(
   JSON.stringify(
     {

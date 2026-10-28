@@ -2,10 +2,11 @@
 
 ## Implemented scope
 
-- Ten fixed local scenarios, S3-only and Supabase profiles.
+- Ten fixed local scenarios, built-in pack selectors, S3-only and Supabase profiles.
 - JSON, Markdown and offline HTML evidence with checksums.
 - Named replay, focused evidence export and deterministic next-test suggestion.
-- A protocol fixture with controlled corruption, real Supabase integration helper, CI definitions.
+- A protocol fixture with controlled corruption, real Supabase integration helper, pinned CI definitions and a composite Action.
+- Strict schema 2 imports, schema 1 history conversion, complete bundle verification and a configuration doctor.
 
 ## Explicitly deferred
 
