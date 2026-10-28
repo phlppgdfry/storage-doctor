@@ -1,0 +1,40 @@
+{
+  "name": "storage-doctor",
+  "version": "0.1.0",
+  "description": "Local object storage diagnostics with cross-protocol evidence reports",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "storage-doctor": "src/cli.js"
+  },
+  "exports": "./src/runner.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "docs",
+    "examples"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node src/cli.js check --local",
+    "demo": "node scripts/demo.js",
+    "integration": "node scripts/integration.js",
+    "verify": "npm run format:check && npm test && npm run demo",
+    "format": "prettier --write src test scripts docs README.md CONTRIBUTING.md SECURITY.md package.json .github",
+    "format:check": "prettier --check src test scripts docs README.md CONTRIBUTING.md SECURITY.md package.json .github",
+    "package:smoke": "node scripts/package-smoke.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1158.0",
+    "@smithy/node-http-handler": "4.13.0"
+  },
+  "devDependencies": {
+    "prettier": "3.9.10"
+  }
+}

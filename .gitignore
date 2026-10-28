@@ -1,0 +1,8 @@
+node_modules/
+reports/
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/
+coverage/

@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "toolVersion": "0.1.0",
+  "runId": "a9ffbbdf-a6a9-4ffe-8df5-40b2336a385d",
+  "mode": "live",
+  "startedAt": "2026-10-28T02:44:53.429Z",
+  "nodeVersion": "v24.21.0",
+  "platform": "darwin/arm64",
+  "config": {
+    "profile": "supabase",
+    "bucket": "sd-3d95da8e-4e7a-473e-8330-1f6762f9fad5",
+    "seed": "storage-doctor-v1",
+    "targetVersion": "public.ecr.aws/supabase/storage-api:v1.84.19",
+    "timeoutMs": 5000,
+    "restUrl": "http://127.0.0.1:55431/storage/v1",
+    "s3Url": "http://127.0.0.1:55431/storage/v1/s3",
+    "tusUrl": "http://127.0.0.1:55431/storage/v1/upload/resumable"
+  },
+  "budget": {
+    "maxScenarios": 10,
+    "maxRequests": 80,
+    "explorationDeadlineMs": 120000,
+    "maxResponseBytes": 8388608,
+    "cleanupOutsideExplorationBudget": true
+  },
+  "payloadSha256": "4c822de1f455a5133fc8ab404ac2ac25aecb541ce4c7a4d3c51e2cd337604280",
+  "results": [
+    {
+      "id": "s3-roundtrip",
+      "title": "S3 byte-exact roundtrip",
+      "protocols": [
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 37
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 11
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 47
+    },
+    {
+      "id": "s3-empty",
+      "title": "Zero-byte object",
+      "protocols": [
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 12
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 6
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 17
+    },
+    {
+      "id": "s3-path",
+      "title": "Allowed spaces and URL-sensitive characters in keys",
+      "protocols": [
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 14
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 6
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 20
+    },
+    {
+      "id": "s3-range",
+      "title": "S3 partial read",
+      "protocols": [
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 11
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 206,
+          "ms": 6
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 17
+    },
+    {
+      "id": "s3-metadata",
+      "title": "Content type and user metadata roundtrip",
+      "protocols": [
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 13
+        },
+        {
+          "protocol": "s3",
+          "operation": "HeadObjectCommand",
+          "status": 200,
+          "ms": 4
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 17
+    },
+    {
+      "id": "rest-to-s3",
+      "title": "REST upload visible through S3",
+      "protocols": [
+        "rest",
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "rest",
+          "operation": "POST",
+          "status": 200,
+          "ms": 11
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 5
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 16
+    },
+    {
+      "id": "s3-to-rest",
+      "title": "S3 upload visible through REST",
+      "protocols": [
+        "s3",
+        "rest"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 11
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 200,
+          "ms": 6
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 17
+    },
+    {
+      "id": "rest-overwrite-s3",
+      "title": "REST overwrite visible through S3",
+      "protocols": [
+        "rest",
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 12
+        },
+        {
+          "protocol": "rest",
+          "operation": "POST",
+          "status": 200,
+          "ms": 10
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 5
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 27
+    },
+    {
+      "id": "s3-delete-rest",
+      "title": "S3 deletion visible through REST",
+      "protocols": [
+        "s3",
+        "rest"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 12
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 200,
+          "ms": 5
+        },
+        {
+          "protocol": "s3",
+          "operation": "DeleteObjectCommand",
+          "status": 204,
+          "ms": 7
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 400,
+          "ms": 5
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 28
+    },
+    {
+      "id": "tus-resume-cross",
+      "title": "TUS offset resume then REST/S3 byte verification",
+      "protocols": [
+        "tus",
+        "rest",
+        "s3"
+      ],
+      "status": "passed",
+      "trace": [
+        {
+          "protocol": "tus",
+          "operation": "POST",
+          "status": 201,
+          "ms": 10
+        },
+        {
+          "protocol": "tus",
+          "operation": "HEAD",
+          "status": 200,
+          "ms": 7
+        },
+        {
+          "protocol": "tus",
+          "operation": "PATCH",
+          "status": 204,
+          "ms": 103
+        },
+        {
+          "protocol": "tus",
+          "operation": "HEAD",
+          "status": 200,
+          "ms": 5
+        },
+        {
+          "protocol": "tus",
+          "operation": "PATCH",
+          "status": 204,
+          "ms": 26
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 60
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 200,
+          "ms": 60
+        }
+      ],
+      "reason": "All scenario assertions passed.",
+      "ms": 273
+    }
+  ],
+  "cleanupWarnings": [],
+  "finishedAt": "2026-10-28T02:44:53.976Z",
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "unsupported": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "exitCode": 0
+}
