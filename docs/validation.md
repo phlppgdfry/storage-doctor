@@ -63,3 +63,5 @@ Remaining limitations: external developer demand unvalidated; no hostile-kernel/
 The initial [fast CI run](https://github.com/phlppgdfry/storage-doctor/actions/runs/40753324276) failed its Node 24 offline-consumer step with ENOTCACHED: npm ci had cached package archives without the metadata a fresh install resolution expected. The smoke now constructs a consumer lockfile from the audited dependency graph and uses npm ci --offline; it does not drop offline validation. Local replay of that fixed consumer passed. Follow-up remote fast-CI evidence is recorded in release.md.
 
 A direct IPv6 loopback request also passed on macOS. Cross-platform browser visual inspection remains unverified; no accessibility certification is claimed.
+
+The fixed [Node 22/24 fast-CI run 40756755065](https://github.com/phlppgdfry/storage-doctor/actions/runs/40756755065) passed both jobs, including offline packed-consumer validation. This resolves the initial ENOTCACHED failure; no failing check was removed.

@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.2.0 — Release candidate, 2026-10-28
+## 0.2.0 — 2026-10-28
 
-Hardening and developer-experience upgrade, validated locally before public push. Remote release status is recorded in [release readiness](docs/release.md).
+Hardening and developer-experience upgrade, validated locally and by Node 22/24 fast CI plus real Linux Supabase/Action integration. Remote release status is recorded in [release readiness](docs/release.md).
 
 - Direct local HTTP/S transport, proxy isolation, connected-address checks and raw response limits before SDK parsing.
 - Enforced run-owned mutations, cancellation and separately bounded per-scenario cleanup.
