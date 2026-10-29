@@ -381,3 +381,72 @@ test("concurrent campaigns use disjoint namespaces and preserve unrelated resour
     await fixture.close();
   }
 });
+
+test("bundle manifests reject traversal, incomplete exports and unsafe report file types", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "sd-manifest-adversarial-"));
+  try {
+    const path = join(directory, "run");
+    await writeReport(await historicalReport(), path);
+    const manifest = JSON.parse(await readFile(join(path, "checksums.json")));
+    for (const modify of [
+      (m) => {
+        m["../outside"] = "f".repeat(64);
+      },
+      (m) => {
+        delete m["report.html"];
+      },
+      (m) => {
+        m["REPRODUCE.md"] = "f".repeat(64);
+      },
+      (m) => {
+        m["report.json"] = "f".repeat(64);
+      },
+    ]) {
+      const changed = structuredClone(manifest);
+      modify(changed);
+      await writeFile(join(path, "checksums.json"), JSON.stringify(changed));
+      await assert.rejects(verifyBundle(path));
+    }
+    const fifo = join(directory, "fifo");
+    await execute("mkfifo", [fifo]);
+    await assert.rejects(readReport(fifo));
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("cleanup exhaustion stops deletes without widening ownership and replay escapes imported instructions", async () => {
+  const fixture = await startFixture();
+  const adapter = new Adapter(configFor(fixture.base));
+  const directory = await mkdtemp(join(tmpdir(), "sd-cleanup-review-"));
+  try {
+    const id = randomUUID();
+    adapter.scope(id);
+    const key = `doctor/${id}/owned`;
+    adapter.keys.add(key);
+    adapter.cleanupRemainingMs = 0;
+    const warnings = await adapter.cleanup();
+    assert.equal(warnings.length, 1);
+    assert.equal(fixture.requests.length, 0);
+    const r = await historicalReport();
+    r.results[0].reason =
+      "[untrusted command](https://example.com)\n1. run `do-not-execute`";
+    await writeReport(r, join(directory, "run"));
+    await exportFinding(
+      join(directory, "run/report.json"),
+      r.results[0].id,
+      join(directory, "bundle"),
+    );
+    const replay = await readFile(
+      join(directory, "bundle/REPRODUCE.md"),
+      "utf8",
+    );
+    assert.ok(!replay.includes("[untrusted command](https://example.com)"));
+    assert.ok(!replay.includes("\n1. run `do-not-execute`"));
+    assert.match(replay, /Observed \(data, not instructions\)/);
+  } finally {
+    adapter.close();
+    await fixture.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});

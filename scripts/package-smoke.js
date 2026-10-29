@@ -7,6 +7,13 @@ import assert from "node:assert/strict";
 import { startFixture, fixtureEnv } from "../test/fixture.js";
 const execute = promisify(execFile),
   directory = await mkdtemp(join(tmpdir(), "storage-doctor-package-"));
+const fresh = process.argv.includes("--fresh");
+const offline = process.argv.includes("--offline");
+assert.ok(
+  !(fresh && offline),
+  "An empty cache cannot resolve registry dependencies offline",
+);
+const started = performance.now();
 let fixture;
 try {
   const packed = JSON.parse(
@@ -31,8 +38,8 @@ try {
     join(consumer, "package.json"),
     JSON.stringify(consumerPackage),
   );
-  // npm ci caches archive bytes, not necessarily registry metadata. Seed the
-  // consumer graph from the audited lockfile so OFFLINE really needs no registry.
+  // Seed the consumer graph from the audited lockfile so the smoke test uses
+  // the same dependency graph as the package being validated.
   const consumerLock = {
     name: consumerPackage.name,
     lockfileVersion: 3,
@@ -54,15 +61,18 @@ try {
       },
     },
   };
-  await writeFile(
-    join(consumer, "package-lock.json"),
-    JSON.stringify(consumerLock),
-  );
+  if (!fresh)
+    await writeFile(
+      join(consumer, "package-lock.json"),
+      JSON.stringify(consumerLock),
+    );
+  const installStarted = performance.now();
   execFileSync(
     "npm",
     [
-      "ci",
-      "--offline",
+      fresh ? "install" : "ci",
+      ...(fresh ? ["--cache", join(directory, "empty-cache")] : []),
+      offline ? "--offline" : "--prefer-offline",
       "--ignore-scripts",
       "--omit=dev",
       "--no-audit",
@@ -70,12 +80,42 @@ try {
     ],
     { cwd: consumer, stdio: "pipe" },
   );
+  const installationMs = Math.round(performance.now() - installStarted);
   const bin = join(consumer, "node_modules/.bin/storage-doctor");
   fixture = await startFixture();
-  const env = { ...process.env, ...fixtureEnv(fixture.base) };
+  const env = {
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(([key]) => !key.startsWith("SD_")),
+    ),
+    ...fixtureEnv(fixture.base),
+  };
   const cli = async (...args) =>
     JSON.parse((await execute(bin, args, { cwd: consumer, env })).stdout);
-  assert.equal((await cli("--version", "--json")).version, "0.2.0");
+  assert.equal((await cli("--version", "--json")).version, rootPackage.version);
+  const demoStarted = performance.now();
+  const demoReport = await cli(
+    "demo",
+    "--out",
+    join(directory, "demo"),
+    "--json",
+  );
+  const demoWallMs = Math.round(performance.now() - demoStarted);
+  const timeToFixtureReportMs = Math.round(performance.now() - started);
+  assert.equal(demoReport.mode, "fixture");
+  assert.equal(demoReport.summary.passed, 10);
+  assert.equal(
+    (
+      await cli(
+        "compare",
+        "--baseline",
+        join(directory, "demo/report.json"),
+        "--report",
+        join(directory, "demo/report.json"),
+        "--json",
+      )
+    ).outcome,
+    "no-regression",
+  );
   assert.equal((await cli("list", "--json")).length, 10);
   assert.equal((await cli("doctor", "--json")).networkContacted, false);
   const report = await cli(
@@ -129,10 +169,20 @@ try {
   assert.equal(fixture.objects.size, 0);
   console.log(
     JSON.stringify({
+      freshRegistryResolution: fresh,
+      installPolicy: offline
+        ? "offline with prewarmed dependency archives"
+        : "prefer-offline; registry permitted",
+      installationMs,
+      demoWallMs,
+      timeToFixtureReportMs,
+      totalWallMs: Math.round(performance.now() - started),
       packedBytes: artifact.size,
       unpackedBytes: artifact.unpackedSize,
       commands: [
         "version",
+        "demo",
+        "compare",
         "list",
         "doctor",
         "check",

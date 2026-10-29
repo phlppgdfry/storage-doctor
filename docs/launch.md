@@ -74,3 +74,27 @@ The tool and Storage Engineering Lab have different roles: this project demonstr
 - What can a checksum manifest prove? It detects file changes relative to the manifest; it does not authenticate the author or certify a result.
 - Why keep AI optional and adaptation deferred? The core diagnostic claim must be checkable without trusting model interpretation; added strategy complexity needs measured benefit.
 - Why avoid remote targets initially? Credential routing, resource ownership and destructive cleanup require a separate authorization design beyond a local disposable workflow.
+
+## v0.3.0 channel drafts — do not publish
+
+Release notes: Storage Doctor 0.3.0 adds a conservative offline report comparison and an installed fixture demo. A healthy baseline can detect PASS→FAIL after a target change; incomplete, mismatched or fixture/live evidence fails closed. The Action adds an optional baseline and a concise job summary. Use the final gates in release.md; do not reuse historical test counts as candidate evidence.
+
+Technical article outline: “When a storage regression gate should refuse to decide.” Show a real recorded healthy local run, an explicitly injected fixture corruption, then a mismatched selection/authorization example returning exit 2. Explain source fingerprints, seed/selection matching, cleanup uncertainty, and why this is neither performance comparison nor automatic bug attribution. Link original reports and exact artifact checksum.
+
+Supabase community draft: “I am testing a small local REST/S3/TUS diagnostic CLI. The new workflow compares two evidence reports while keeping unavailable evidence distinct from a failed assertion. Would this help with an actual self-hosted upgrade? The demo is a fixture; real local Supabase evidence and limitations are documented. I am looking for two observed setup sessions, not compatibility endorsements.”
+
+Hacker News draft title: “Show HN: Storage Doctor — local storage diagnostics with reviewable regression evidence”. Body: describe the PASS→FAIL use case, link the repository and reviewed release, disclose local-only scope, fixtures, lack of external validation and existing S3 test alternatives. Use Show HN only once people can actually try the approved artifact.
+
+Reddit draft: “Debugging local Supabase Storage across REST, S3 and resumable uploads: a small CLI experiment.” Show one reproducible command sequence and ask whether evidence made a real debugging task easier. Check the chosen community's rules before any owner-approved post; do not cross-post identical promotions or ask for votes.
+
+LinkedIn draft: “A storage diagnostic can fail because the target disagrees, because evidence is incomplete, or because the test's expectation was wrong. I built a small local CLI to keep these distinct. The latest candidate adds status regression comparison and a packaged fixture demo, with fault tests and real local Supabase runs. It remains an engineering project without production adoption claims.”
+
+60-second candidate demo: (0–10s) show help and local-only scope; (10–25s) run `storage-doctor demo --out GOOD`, state fixture; (25–40s) run `storage-doctor demo --inject-corruption --out BAD`, show exit 1; (40–50s) compare GOOD/report.json with BAD/report.json; (50–60s) show the actual reason/cleanup and explain that a vendor finding needs real-engine reproduction. Record once with real terminal output, not scripted fictional results.
+
+Portfolio addition: v0.3.0 demonstrates product restraint and evidence handling: reuse the existing protocol engine, compare only equivalent declared diagnostic inputs, separate contract disagreement from missing evidence, and test from a packed consumer. Its strongest evidence is bounded protocol work, negative/security tests, reproducibility and an explicit oracle correction. It still does not demonstrate large-scale production operations, multi-tenant RLS security, crash recovery, broad provider support or measured user adoption. Ownership and popularity are not substitutes for those experiences.
+
+## Actual 45-second capture
+
+The [terminal capture](../examples/showcase/regression.cast), [plain transcript](../examples/showcase/transcript.txt) and [metadata](../examples/showcase/recording.json) contain actual script-invoked commands and captured stdout/stderr at original wall-clock times. Commands exit 0 (healthy fixture), 1 (injected corruption), 1 (comparison), 0 (export) and 0 (verification). Narration is scripted and labelled; it is not a human usability session, screen video or real Supabase defect. Re-record from the source checkout with `npm run demo:record`; each run uses new output directories and checks the actual exit values. Review local path identifiers before external sharing.
+
+Recommended metadata (not applied): keep the current factual repository description; proposed topics: supabase, s3, storage, tus, cli, diagnostics, testing. Good first contributions should be based on actual onboarding findings; a useful bounded candidate is documenting a verified Windows/PowerShell setup after someone executes it. Do not create speculative public issues or claim Windows validation now.

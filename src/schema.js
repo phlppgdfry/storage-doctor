@@ -115,9 +115,23 @@ export function validateReport(r) {
     fail();
   if (!/^[0-9a-f-]{36}$/.test(text(r.runId, 36))) fail();
   if (!/^\d+\.\d+\.\d+(?:-[a-z0-9.-]+)?$/.test(text(r.toolVersion, 40))) fail();
-  for (const date of [r.startedAt, r.finishedAt])
-    if (!Number.isFinite(Date.parse(text(date, 40)))) fail();
+  for (const date of [r.startedAt, r.finishedAt]) {
+    if (
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(text(date, 40)) ||
+      !Number.isFinite(Date.parse(date)) ||
+      new Date(date).toISOString() !== date
+    )
+      fail();
+  }
+  if (Date.parse(r.finishedAt) < Date.parse(r.startedAt)) fail();
+  if (
+    r.environmentFingerprint !== undefined &&
+    r.environmentFingerprint !== "unrecorded" &&
+    !/^[a-f0-9]{64}$/.test(r.environmentFingerprint)
+  )
+    fail();
   object(r.config, [
+    "authContext",
     "profile",
     "bucket",
     "seed",
@@ -129,6 +143,11 @@ export function validateReport(r) {
     "region",
   ]);
   const config = { ...r.config };
+  if (
+    config.authContext !== undefined &&
+    !/^[A-Za-z0-9_-]{1,64}$/.test(safeText(config.authContext, 64))
+  )
+    fail();
   if (
     !["supabase", "s3"].includes(config.profile) ||
     !/^(sd-|storage-doctor-)[a-z0-9-]{1,60}$/.test(text(config.bucket, 63))
@@ -185,6 +204,11 @@ export function validateReport(r) {
       };
       if (cleanup.warnings.length && cleanup.status !== "failed") fail();
     }
+    if (
+      item.environmentFingerprint !== undefined &&
+      item.environmentFingerprint !== r.environmentFingerprint
+    )
+      fail();
     if (item.reproduction) {
       object(item.reproduction, ["seed", "scenario"]);
       if (
@@ -282,7 +306,10 @@ export function validateReport(r) {
 export async function readReport(path) {
   let handle;
   try {
-    handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    handle = await open(
+      path,
+      constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
+    );
     const stat = await handle.stat();
     if (!stat.isFile() || stat.size > 2097152) fail();
     const buffer = Buffer.alloc(2097153);

@@ -1,0 +1,51 @@
+# Copy into a separate consumer's .github/workflows/storage-doctor.yml.
+# Supply an approved, pushed 40-character commit SHA when dispatching.
+# This candidate has not been pushed: do not substitute a fictitious v0.3.0 tag.
+name: Storage Doctor consumer
+on:
+  workflow_dispatch:
+    inputs:
+      doctor-sha:
+        description: Reviewed storage-doctor commit (40 lowercase hex characters)
+        required: true
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Validate revision input
+        env:
+          DOCTOR_SHA: ${{ inputs.doctor-sha }}
+        run: '[[ "$DOCTOR_SHA" =~ ^[0-9a-f]{40}$ ]]'
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: phlppgdfry/storage-doctor
+          ref: ${{ inputs.doctor-sha }}
+          path: _storage-doctor
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb
+        with:
+          version: 2.122.0
+      - run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+        working-directory: _storage-doctor
+      - id: stack
+        working-directory: _storage-doctor
+        run: supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > "$RUNNER_TEMP/storage-doctor-start.log" 2>&1
+      - id: bucket
+        working-directory: _storage-doctor
+        run: node scripts/integration.js --provision-action
+      - uses: ./_storage-doctor
+        with:
+          pack: core
+          # Optional: baseline: path/to/trusted/report.json from this same build
+      - if: always() && steps.bucket.outcome == 'success'
+        working-directory: _storage-doctor
+        run: node scripts/integration.js --cleanup-action
+      - if: always() && steps.stack.outcome != 'skipped'
+        working-directory: _storage-doctor
+        run: supabase stop

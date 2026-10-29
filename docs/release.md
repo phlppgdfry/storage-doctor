@@ -1,5 +1,7 @@
 # Release readiness and process
 
+**Current: v0.3.0 is a local release candidate, not cleared for publication.** Current gates are at the end of this document. The following v0.2.0 assessment is historical and remains preserved.
+
 Verified initial-release version: **0.2.0**, a report-format and safety upgrade from 0.1.0. All critical engineering gates passed; the remaining limitations below define its local-first MVP scope.
 
 ## Candidate quality gates
@@ -55,3 +57,53 @@ Status and exit-code changes must be listed in the changelog. FAIL describes a f
 ## After initial publication
 
 Ask for feedback on a specific local workflow. Record actual setup friction and report usefulness before building AI, adaptive testing or more providers. Keep announcements manual and avoid compatibility, performance or hiring claims that the evidence does not support.
+
+## v0.3.0 local candidate — current work
+
+The sections above are the preserved **v0.2.0 historical decision**, not authorization to publish or current v0.3.0 gate results. Current owner instructions require explicit approval before any push, public issue/PR, npm publication or release change. The existing v0.2.0 GitHub draft and its assets are untouched.
+
+0.3.0 is justified by additive offline comparison, packaged demo and Action baseline/summary features. Existing report schema 2, diagnostic scenarios and check exit semantics remain. Baseline comparison deliberately refuses different diagnostic builds; this limitation is documented rather than hidden behind schema migration.
+
+Distribution: continue with a reviewed GitHub source/tag and checksumed npm-format archive, plus the SHA-pinned Action for workflows with a provisioned disposable service. Direct GitHub dependency installation has weaker lockfile reproducibility; prefer the reviewed archive. npm lookup returned E404 on 2026-10-29; this neither reserves the name nor proves ownership. No public npm installation recipe is advertised. If npm distribution is separately approved later, verify ownership and registry provenance support in the chosen release environment before publishing. No provenance attestation was generated here; SHA-256 is integrity, not identity.
+
+Do not publish v0.2.0 merely as a prerequisite: 0.3.0 does not depend on a previous GitHub release. If a public milestone is wanted, first decide whether to publish the already validated 0.2.0 unchanged or wait for 0.3.0 hosted CI and user sessions. Keep either decision explicit and preserve the draft's existing evidence.
+
+### Current v0.3.0 gates (follow-up audit)
+
+| Category                    | Decision              | Evidence / boundary                                                                                                                        |
+| --------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Correctness                 | PASS WITH LIMITATIONS | 31 tests on Node 22/24; two final-source real Supabase runs 10/10 each. Existing narrow assertions only.                                   |
+| Security                    | PASS WITH LIMITATIONS | Existing security regressions, changed-path author review and production audit 0; no independent external audit.                           |
+| Reliability                 | PASS WITH LIMITATIONS | Negative tests, authorization/cleanup/cancellation paths; no crash recovery or production reliability evidence.                            |
+| Reproducibility             | PASS WITH LIMITATIONS | Same-source real rerun and comparison; corruption detector; bundle hashes; no independent-human reproduction.                              |
+| Developer experience        | PASS WITH LIMITATIONS | Fresh-cache consumer and zero-credential installed demo; no independent users, visual browser opening blocked.                             |
+| Packaging                   | PASS                  | Installed eleven-command consumer flows, Node 22/24, fresh cache install, version/fingerprint consistency and reviewed file list.          |
+| CI integration              | PASS WITH LIMITATIONS | Actual shell blocks in independent consumer with injected failure; actionlint passes. Hosted runner/artifact path for v0.3.0 NOT VERIFIED. |
+| Documentation               | PASS WITH LIMITATIONS | Local links, source contracts, usable recipes and real snapshots; external users and browser rendering pending.                            |
+| Open-source maintainability | PASS WITH LIMITATIONS | No runtime dependency addition; pinned actions, contributor/security/release instructions; human review pending.                           |
+| Product differentiation     | PASS WITH LIMITATIONS | Narrow multi-protocol evidence + conservative comparison; existing tools acknowledged, novelty/demand not established.                     |
+| User value                  | NOT VERIFIED          | Concrete automated workflow; two-developer protocol prepared, no actual user outcomes.                                                     |
+| Release readiness           | NOT VERIFIED          | Local RC prepared. Obtain review, explicit push permission, current hosted Node/service/Action CI, and owner release decision.             |
+
+Exact execution commands/results and limits are in [validation](validation.md). This is intentionally not an unconditional “ready” declaration. No open critical issue was found locally, but missing evidence remains missing.
+
+Before publication: inspect the local diff including the preserved user edit, commit the approved candidate, get explicit push permission, run the hosted consumer workflow with its actual reviewed 40-character SHA, review artifacts, and obtain explicit release/package publication approval. The consumer workflow is ready for a separate repository; it uses no undocumented consumer files and does not claim an unpushed v0.3.0 tag exists. Prefer obtaining the two user sessions before a broad launch.
+
+### Final follow-up decision: CONDITIONAL GO for review, not publication
+
+The candidate now verifies bundle integrity before CLI comparison, requires a declared live auth context, rejects conflicting timestamps/fingerprints and unsafe evidence file types, and escapes imported replay prose. Historical schema conversion still works; a temporary regression introduced by the stricter import check was detected and fixed, not suppressed. The actual capture and latest real snapshot match the final source fingerprint. No storage assertion, runtime dependency or safety scope was expanded.
+
+Review [compare](../src/compare.js), [strict imports](../src/schema.js), [bundle verification/rendering](../src/report.js), [configuration](../src/config.js), [CLI](../src/cli.js), [regression tests](../test/compare.test.js), [security tests](../test/security.test.js), and the actual [recording script](../scripts/record-demo.js). Supporting changes are package/demo/Action-consumer helpers, Action inputs/summary, the Node matrix and PR-triggered local-engine workflow, README/configuration/contracts/changelog, and preserved example evidence. Inspect the complete branch diff, not just these highlighted files.
+
+Hosted current-branch Node 22/24, real Action execution and artifact upload: **NOT EXECUTED**. Local shell consumer results are not substituted for those gates. The service workflow is now prepared to run on relevant pull requests, as well as manual dispatch. No remote branch, PR, tag, release or metadata setting has been created or changed in this follow-up.
+
+Source/version consistency: package.json, lockfile and src/version.js all declare 0.3.0. A local review commit records the candidate after the full diff/history/package scan. No v0.3.0 release tag is claimed; final tag-to-source verification must happen against the approved hosted commit before release. The existing v0.2.0 draft and artifact digests remain unchanged. Local archives are prepared under ignored reports/release-v0.3.0-rc2; older candidate artifacts remain intact.
+
+Outstanding actions, in order:
+
+1. **Owner authorization:** allow pushing only work/v0.3.0-regression-evidence and opening a draft PR. No merge, release publication, npm publication or external contact is included.
+2. Inspect hosted Verify Node 22/24 jobs and the real service/Action workflow for that exact SHA. Fix confirmed failures locally and request/retain appropriate push authorization for corrections. Download and verify artifacts before claiming success.
+3. **External participants/owner coordination:** run the existing two-developer usability protocol. No testers were contacted and no feedback was invented. Independent human code review also remains outstanding.
+4. **Separate owner authorization:** after review and hosted gates, create a reviewed release/tag. npm requires an additional separate decision and verified name ownership. Do not alter the v0.2.0 draft as a side effect.
+
+Safe local implementation and validation are complete for this scope. This is not production, universal S3, external security or market certification. The next blocking action is publication of the review branch, which the owner explicitly reserved for approval.

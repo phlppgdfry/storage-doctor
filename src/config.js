@@ -56,7 +56,16 @@ export function loadConfig(env = process.env) {
     throw new ConfigurationError(
       "SD_TARGET_VERSION must be a version, image digest or commit.",
     );
+  const authContext = env.SD_AUTH_CONTEXT || "unrecorded";
+  if (
+    !/^[a-zA-Z0-9_-]{1,64}$/.test(authContext) ||
+    /(?:sb_secret_|AKIA[A-Z0-9]{12,})/i.test(authContext)
+  )
+    throw new ConfigurationError(
+      "SD_AUTH_CONTEXT must be a non-secret 1..64 character capability/policy label (letters, digits, dash, underscore).",
+    );
   return {
+    authContext,
     profile,
     bucket,
     seed,
@@ -80,6 +89,7 @@ export function publicConfig(c) {
   // Allowlist only. Never serialize tokens, access keys, raw environment or error bodies.
   return Object.fromEntries(
     [
+      "authContext",
       "profile",
       "bucket",
       "seed",
@@ -95,6 +105,7 @@ export function publicConfig(c) {
 
 export function validateConfig(c) {
   return loadConfig({
+    SD_AUTH_CONTEXT: c.authContext,
     SD_PROFILE: c.profile,
     SD_BUCKET: c.bucket,
     SD_REST_URL: c.restUrl,

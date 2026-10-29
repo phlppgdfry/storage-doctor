@@ -55,6 +55,7 @@ try {
   ).trim();
 } catch {}
 const config = loadConfig({
+  SD_AUTH_CONTEXT: "local-service-role",
   SD_REST_URL: `${api}/storage/v1`,
   SD_TOKEN: token,
   SD_API_KEY: token,
@@ -116,6 +117,7 @@ if (process.argv[2] === "--provision-action") {
     flag: "wx",
   });
   const values = {
+    SD_AUTH_CONTEXT: config.authContext,
     SD_PROFILE: "supabase",
     SD_BUCKET: config.bucket,
     SD_REST_URL: config.restUrl,
