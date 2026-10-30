@@ -10,6 +10,7 @@ on:
         required: true
 permissions:
   contents: read
+  actions: read
 jobs:
   diagnose:
     runs-on: ubuntu-latest
@@ -40,9 +41,19 @@ jobs:
         working-directory: _storage-doctor
         run: node scripts/integration.js --provision-action
       - uses: ./_storage-doctor
+        id: doctor
         with:
           pack: core
           # Optional: baseline: path/to/trusted/report.json from this same build
+      - name: Retrieve this run's evidence artifact
+        id: retrieve
+        if: always() && steps.doctor.outcome != 'skipped'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "storage-doctor-${GITHUB_JOB}-${GITHUB_RUN_ATTEMPT}" --dir "$RUNNER_TEMP/retrieved-storage-doctor"
+      - name: Verify retrieved evidence
+        if: always() && steps.retrieve.outcome == 'success'
+        run: node _storage-doctor/src/cli.js verify --report "$RUNNER_TEMP/retrieved-storage-doctor" --json
       - if: always() && steps.bucket.outcome == 'success'
         working-directory: _storage-doctor
         run: node scripts/integration.js --cleanup-action

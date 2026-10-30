@@ -34,3 +34,7 @@ Execution evidence and final gates: [validation](docs/validation.md), [release](
 - **LOW:** no public v0.3.0 tag, npm publication or provenance attestation. These are explicitly withheld rather than fabricated.
 
 Final follow-up execution: 31/31 tests on explicit Node 22.23.4 and Node 24.22.2, none skipped; true offline and fresh-cache consumers pass; two final-source real runs pass 10/10 each; actual approximately 45-second cast captured and source-matched. Added manifest-pair, FIFO and imported replay-data tests. Full history redacted secret scan passes. Current detailed evidence is the final RC2 section of docs/validation.md; publication remains gated on explicit approval.
+
+## 2026-10-30 revalidation
+
+Clean expected RC2 was confirmed; hosted main remains d0054a8 with no PR. P1 reproduced/fixed: percent-encoded checkout paths in the source integration helper. P2 completed: independent review packet, negative/redaction Action-consumer cases and a syntax-checked artifact retrieval/verification example. Both Node versions now pass 32 tests without skips; a new real local run passes 10/10 and compares successfully to the preserved RC2 snapshot. No runtime diagnostic source or dependency changed. Current release gate uses PASS / FAIL / NOT EXECUTED / NOT APPLICABLE and remains CONDITIONAL GO pending authorized publication and real external evidence.

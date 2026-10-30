@@ -2,12 +2,13 @@
 import { execFileSync } from "node:child_process";
 import { readFile, writeFile, appendFile } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { loadConfig } from "../src/config.js";
 import { run } from "../src/runner.js";
 import { writeReport } from "../src/report.js";
 import { directRequest } from "../src/transport.js";
-const workdir = new URL("..", import.meta.url).pathname;
+const workdir = fileURLToPath(new URL("..", import.meta.url));
 let status;
 try {
   status = JSON.parse(

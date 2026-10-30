@@ -8,6 +8,8 @@
 - A protocol fixture with controlled corruption, real Supabase integration helper, pinned CI definitions and a composite Action.
 - Strict schema 2 imports, schema 1 history conversion, complete bundle verification and a configuration doctor.
 
+- Conservative offline report comparison with verified bundles and declared auth context; installed fixture demo and source-matched capture.
+
 ## Explicitly deferred
 
 - AI root-cause explanations, automatic patching and LLM API integrations.
@@ -58,3 +60,17 @@ Adoption and upstream merges must be linked only after they happen. This project
 ## Optional AI design boundary
 
 If user feedback justifies it, an explicitly invoked analysis command may consume the same validated evidence schema and return labelled hypotheses with links to observations. It must need a separate provider configuration, an explicit per-call token/cost limit and consent before sending any report to that provider. No credentials or raw bodies belong in the payload. It must never execute suggested commands, alter config, create issues or apply patches. The deterministic CLI and evidence export remain sufficient without it. No provider implementation or model call is currently shipped.
+
+## Priorities after the release gates
+
+This is a conditional queue, not authorization to implement features before current hosted/independent-review gates close. Demand and timing remain unvalidated.
+
+| User problem                                                 | Expected benefit                                                        | Complexity | Risk                                            | Required evidence                                                                             | Priority / suggested version |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------- | ---------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------- |
+| First-time setup may be misunderstood                        | Fix actual onboarding blockers and help users reach a meaningful report | Low        | Optimizing for author assumptions               | Two observed sessions, exact failed commands, assistance and task outcomes                    | P1 / 0.3.1                   |
+| A real target disagreement may lack actionable explanation   | Point to a documented contract and the next useful investigation        | Low–medium | Incorrect root-cause attribution                | Sanitized real failure, independent reproduction and confirmed user misunderstanding          | P1 / 0.3.1                   |
+| Hosted consumer environments may reveal compatibility issues | Keep installation, exits and artifact retrieval dependable              | Low–medium | Widening support claims beyond tested platforms | Actual hosted workflow SHA/logs and artifact verification; reproduce any platform issue first | P1 / 0.3.1                   |
+| A known storage state transition may be missing              | Add one focused diagnostic rather than a general generator              | Medium     | False oracle, extra writes/cleanup burden       | Documented support, upstream-test review, stable failure and real local integration           | P2 / 0.4.0 only if justified |
+| Evidence formats may become harder to maintain               | Preserve trustworthy imports and readable reports                       | Low–medium | Breaking historical consumers                   | A concrete compatibility defect and an adversarial regression case                            | P2 / next patch where needed |
+
+AI, cloud targets, dashboards, plugin architectures and generalized shrinking remain rejected for this release. No demonstrated user problem warrants their implementation. Security findings, if any appear, override this queue and require a scoped fix, private handling and focused verification.

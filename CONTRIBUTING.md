@@ -1,6 +1,6 @@
 # Contributing
 
-Start with `npm ci` and `npm run verify`. For a real local stack, follow README and run `npm run integration`.
+For an evaluation without the author’s environment, start with the [independent review packet](docs/review.md). For source development, start with `npm ci` and `npm run verify`. For a real local stack, follow README and run `npm run integration`.
 
 Keep one behavior per change. Define the protocol contract, preconditions and expected observation before writing an assertion. Reuse the SDK rather than introducing custom signing. Include a small regression case that would fail for the relevant defect; do not weaken checks merely to get a green run.
 

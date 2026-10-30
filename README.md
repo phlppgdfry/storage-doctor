@@ -6,7 +6,7 @@ Storage Doctor runs ten bounded checks across **Supabase REST, S3 and TUS**, rec
 
 Independent, local-first and offline-reporting. No cloud targets, telemetry or AI key. Existing broad S3 suites and load generators solve different problems; [scope and alternatives](docs/product-validation.md).
 
-**Version status:** this is a **v0.3.0 candidate**. No v0.3.0 tag or npm package is published. Use this reviewed candidate checkout or its exact reviewed archive; the public default branch can still contain v0.2.0 until an approved merge. [Current release gates](docs/release.md).
+**Version status:** this is a **v0.3.0 candidate**. No v0.3.0 tag or npm package is published. Use this reviewed candidate checkout or its exact reviewed archive; the public default branch can still contain v0.2.0 until an approved merge. [Current release gates](docs/release.md) · [Independent review packet](docs/review.md).
 
 ## Try it safely
 

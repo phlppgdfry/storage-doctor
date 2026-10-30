@@ -2,6 +2,8 @@
 
 ## 0.3.0 — Local release candidate, 2026-10-29
 
+2026-10-30 follow-up: fix decoded checkout paths for the integration helper; add a regression, negative/redaction consumer checks, artifact roundtrip example and independent reviewer packet. No runtime diagnostic or dependency change.
+
 - RC audit: comparison now verifies complete bundles automatically, requires declared live authentication context and rejects conflicting metadata/timestamps. Status-transition, selection, schema and tamper regression tests added.
 - Offline `compare` command detects PASS→FAIL while refusing mismatched builds, selections, fixture/live provenance and incomplete evidence. Strict healthy-baseline and cleanup requirements; unchanged report schema 2.
 - Installed `demo` command uses the same runner and explicit fixture provenance without credentials or checkout-only test files. Controlled corruption demonstrates the failure and comparison exit codes.

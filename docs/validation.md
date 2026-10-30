@@ -194,3 +194,34 @@ Local Action validation passes three healthy and three injected-failure fixture 
 No independent reviewer or external developer has participated. The two-person usability protocol remains ready in product-validation.md; no feedback or task outcomes are fabricated. Windows development/test execution is unverified. Visual local-file browser validation remains policy-blocked; static report and import tests pass.
 
 Verdict: **CONDITIONAL GO for an explicitly authorized draft PR; NO-GO for an unconditional production/release claim.** Source commit, packed manifest and checksums are retained with the local RC2 artifact; no v0.3.0 tag, GitHub release, npm publish, automatic merge, external contact or remote metadata change was performed.
+
+## 2026-10-30 readiness revalidation
+
+Started from clean `8f5b5ed` on the expected branch. Remote branches/PRs/releases/runs were re-read: only main `d0054a8` was published, no PR, v0.2.0 still draft with identical two asset digests. Existing passing runs [40772293837](https://github.com/phlppgdfry/storage-doctor/actions/runs/40772293837) and [40771923559](https://github.com/phlppgdfry/storage-doctor/actions/runs/40771923559) test that old main SHA, not this candidate. Original RC2 tarball SHA-256 still matches `fcb8ef49cf189a748fcac1f9cfb0081f418f398938ff7c385884f634bb6d448c`.
+
+A fresh baseline `npm run verify` passed 31/31. Inspection found one new confirmed P1 source-helper issue: URL.pathname sent percent-encoded spaces in --workdir. A checkout copied into a path with spaces and a synthetic Supabase executable captured the exact CLI arguments and exited before any target operation. The new test failed with `%20` before the fix, then passed with `fileURLToPath`. The temporary-root symlink was resolved in the test so the assertion isolates URL encoding rather than /var versus /private/var aliases. No failure was suppressed.
+
+Current executions:
+
+```sh
+node --test test/integration-helper.test.js
+npm run verify
+npm run package:offline
+npm run action:smoke
+PATH=/private/tmp/node-v22.23.4-darwin-arm64/bin:/usr/bin:/bin:/opt/homebrew/bin npm run verify
+PATH=/private/tmp/node-v22.23.4-darwin-arm64/bin:/usr/bin:/bin:/opt/homebrew/bin npm run package:offline
+PATH=/private/tmp/node-v22.23.4-darwin-arm64/bin:/usr/bin:/bin:/opt/homebrew/bin npm run action:smoke
+npm run integration
+node src/cli.js compare --baseline examples/v0.3.0-rc2/report.json --report reports/integration-3d2529b4-6399-49c9-a4e5-722b808eb130/report.json --json
+npm audit --omit=dev --json
+actionlint examples/consumer-workflow.yml
+git diff --check
+```
+
+Final suite: **32/32, zero skipped**, on Node **22.23.4** and **24.22.2**, macOS/arm64. Formatting, syntax, links and fixture demo pass. Offline clean consumer (prewarmed dependency archive cache, no npm network) executes all eleven flows on both versions. Source helper fix does not change shipped src modules; the engine remains `88778a934fef9f49f963aed831eee66cc05d4545f784999220b8edf5d7ed2735`. Therefore the preserved real snapshot and actual capture remain source-matched; no new recording was fabricated to imply fresh human feedback.
+
+The Action smoke now validates three healthy checks, three injected failures, unknown pack, missing bearer token, zero target requests for those invalid setups, successful-log and JSON/Markdown/HTML credential exclusion, and existing failure/missing-report summaries. Both Node versions pass. Its consumer remains a local shell exercise, not GitHub artifact/condition/cancellation proof. The separate workflow now requests only additional `actions: read`, selects its actual run ID and artifact name for `gh run download`, and verifies the retrieved bundle. Official [download semantics](https://cli.github.com/manual/gh_run_download) and actionlint were checked. No remote permission setting or workflow was run/changed.
+
+Fresh real helper run: `reports/integration-3d2529b4-6399-49c9-a4e5-722b808eb130`, **10/10**, zero cleanup warnings, `public.ecr.aws/supabase/storage-api:v1.84.19`. Its complete bundle compared with the retained RC2 snapshot returns `no-regression`, exit 0. This is an unchanged-target repeat, not validation of a storage upgrade or a new defect. Only the dedicated project/ports were used. npm production audit again reports zero findings across 27 production packages; no dependency changed.
+
+The [independent review packet](review.md) contains archive trust/installation, exact commands and expected exits, tamper/lost-assurance tasks, local security boundaries and blank feedback fields. The roadmap now records user problem, benefit, effort, risk, required evidence and proposed release for each conditional next item. Actual external usability and independent human review remain NOT EXECUTED. No remote branch, PR, release, npm publish or external message is authorized by these results. Current gate decisions are in release.md. Historical evidence, test failures, archives and recordings remain intact.

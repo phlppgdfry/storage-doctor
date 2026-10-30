@@ -50,7 +50,28 @@ try {
   env.SD_ACTION_OUT = (await readFile(output, "utf8"))
     .trim()
     .slice("directory=".length);
-  await execute("bash", ["-e", "-c", commands[2]], { cwd: directory, env });
+  const success = await execute("bash", ["-e", "-c", commands[2]], {
+    cwd: directory,
+    env,
+  });
+  const cleanOutput = success.stdout + success.stderr;
+  for (const secret of [
+    env.SD_TOKEN,
+    env.SD_ACCESS_KEY_ID,
+    env.SD_SECRET_ACCESS_KEY,
+  ]) {
+    assert.ok(
+      !cleanOutput.includes(secret),
+      "Action logs must exclude fixture credentials",
+    );
+    for (const name of ["report.json", "report.md", "report.html"])
+      assert.ok(
+        !(await readFile(join(env.SD_ACTION_OUT, name), "utf8")).includes(
+          secret,
+        ),
+        "Action evidence must exclude fixture credentials",
+      );
+  }
   env.SD_ACTION_BASELINE = join(env.SD_ACTION_OUT, "report.json");
   await execute("bash", ["-e", "-c", commands[3]], { cwd: directory, env });
   await execute("bash", ["-e", "-c", commands[4]], { cwd: directory, env });
@@ -75,6 +96,32 @@ try {
   } finally {
     await corrupted.close();
   }
+  Object.assign(env, fixtureEnv(fixture.base));
+  env.SD_ACTION_OUT = join(directory, "invalid-configuration");
+  const requestsBefore = fixture.requests.length;
+  const invalid = async () => {
+    const result = await execute("bash", ["-e", "-c", commands[2]], {
+      cwd: directory,
+      env,
+    }).catch((error) => error);
+    assert.equal(result.code, 2);
+    assert.equal(
+      fixture.requests.length,
+      requestsBefore,
+      "Invalid setup must not contact storage",
+    );
+    for (const secret of [
+      "fixture-secret-token",
+      "fixture-access",
+      "fixture-secret",
+    ])
+      assert.ok(!(result.stdout + result.stderr).includes(secret));
+  };
+  env.SD_ACTION_PACK = "unknown-pack";
+  await invalid();
+  env.SD_ACTION_PACK = "core";
+  delete env.SD_TOKEN;
+  await invalid();
   env.SD_ACTION_OUT = join(directory, "missing-evidence");
   await execute("bash", ["-e", "-c", commands[4]], { cwd: directory, env });
   assert.match(await readFile(summary, "utf8"), /No valid report was produced/);
@@ -86,6 +133,8 @@ try {
       shellSteps: 5,
       checks: 3,
       faultChecks: 3,
+      invalidConfigurationCases: 2,
+      credentialRedaction: "checked in successful logs and JSON/Markdown/HTML",
       consumer: "separate temporary directory",
       limitations:
         "Local shell execution, not hosted GitHub runner/setup-node/artifact validation",
