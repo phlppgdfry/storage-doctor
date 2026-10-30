@@ -19,9 +19,8 @@ const generated = process.env.SD_GENERATED_REPORT;
 if (expected === 2) {
   assert.equal(cleanup.requests, 0, "Invalid setup must not reach storage");
   assert.equal(
-    (generated
-      ? access(join(generated, "report.json"))
-      : Promise.reject()
+    await (
+      generated ? access(join(generated, "report.json")) : Promise.reject()
     ).then(
       () => true,
       () => false,

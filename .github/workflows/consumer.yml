@@ -48,12 +48,13 @@ jobs:
         uses: ./_action
         with:
           profile: supabase
+          artifact-name: storage-doctor-consumer-${{ matrix.scenario }}-${{ github.run_attempt }}
           pack: ${{ matrix.scenario == 'invalid-pack' && 'unknown-pack' || 'core' }}
       - name: Download Action evidence
         if: always() && (matrix.scenario == 'success' || matrix.scenario == 'corruption')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "storage-doctor-${GITHUB_JOB}-${GITHUB_RUN_ATTEMPT}" --dir "$RUNNER_TEMP/retrieved-evidence"
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "storage-doctor-consumer-${SD_CONSUMER_CASE}-${GITHUB_RUN_ATTEMPT}" --dir "$RUNNER_TEMP/retrieved-evidence"
       - name: Stop synthetic fixture
         if: always() && steps.fixture.outcome == 'success'
         run: |
