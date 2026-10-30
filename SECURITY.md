@@ -13,3 +13,9 @@ Reports exclude authorization headers, raw response bodies and credential object
 Use [GitHub private vulnerability reporting](https://github.com/phlppgdfry/storage-doctor/security/advisories/new) for suspected Storage Doctor vulnerabilities. Publication is gated on enabling and verifying that route. Do not place credentials or exploit details in a public issue. There is no promised response SLA.
 
 Supabase findings follow [Supabase's policy](https://github.com/supabase/storage/blob/master/SECURITY.md). Storage Doctor never submits findings, posts reports or contacts maintainers automatically.
+
+`compare` is offline and accepts only validated bounded report files. It neither authenticates evidence nor sends it to any service. The CLI verifies both original manifests before comparison and parses exactly the bytes that passed hashing. Manifests are not signatures: replacing both evidence and checksums cannot be detected without an independently trusted source. `demo` starts an ephemeral loopback fixture with synthetic credentials and no persistent storage; a fixture result must never be used as vendor evidence. Action summaries serialize only validated stable scenario IDs/statuses.
+
+Bundle verification opens only regular no-follow files, caps reads even if files grow, and parses the verified report buffer without reopening it. Authentication context is user-declared and cannot prove actual permission equivalence. Never encode credentials or private identities in this public label.
+
+Partial export manifests, path-traversal entries and non-regular evidence files are rejected. FIFO input cannot block the importer indefinitely. Imported observation prose is escaped in replay Markdown and labelled as data. No replay file is automatically executed.

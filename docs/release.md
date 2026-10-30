@@ -1,57 +1,46 @@
-# Release readiness and process
+# Release process and v0.3.0 record
 
-Verified initial-release version: **0.2.0**, a report-format and safety upgrade from 0.1.0. All critical engineering gates passed; the remaining limitations below define its local-first MVP scope.
+Storage Doctor is distributed as a GitHub source tag and a reviewed npm-format archive. It is not published to npm. The v0.2.0 draft and assets are preserved. Historical candidate decisions are retained in [the archived readiness record](history/release-readiness-before-v0.3.0.md); they are not current approval restrictions.
 
-## Candidate quality gates
+The owner explicitly authorized the existing branch push, draft PR, release fixes, hosted checks, validated merge, annotated tag and GitHub v0.3.0 publication on 2026-10-31. npm publication and external reviewer contact remain outside that authorization.
 
-Local critical gates passed before initial source publication. Remote fast CI and service/Action CI have now also passed. Evidence is in [validation](validation.md), the [audit](upgrade-audit.md) and the checked-in [real-run snapshot](../examples/v0.2.0/report.json).
+## Mandatory engineering gates
 
-| Category             | Decision                  | Evidence and limitation                                                                                                                                                                                                                                                                                                                                      |
-| -------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Security             | PASS WITH LIMITATIONS     | 12 independent security regressions pass; no unresolved critical finding in reviewed paths. Not external certification; tunnels/host compromise excluded.                                                                                                                                                                                                    |
-| Correctness          | PASS WITH LIMITATIONS     | Ten source-backed scenarios pass on current local Supabase v1.84.19; not universal protocol compliance.                                                                                                                                                                                                                                                      |
-| Reliability          | PASS WITH LIMITATIONS     | Partial failure, cancellation, concurrent ownership, stream stalls and bounded cleanup tested. Hard process death cannot guarantee cleanup.                                                                                                                                                                                                                  |
-| Packaging            | PASS                      | Offline packed installation executes version/list/doctor/check/report/export/verify/plan/quiet.                                                                                                                                                                                                                                                              |
-| Developer experience | PASS WITH LIMITATIONS     | Independent fresh consumer flow passes; external user demand and broad usability remain unvalidated.                                                                                                                                                                                                                                                         |
-| Documentation        | PASS WITH LIMITATIONS     | Local file links and command recipes checked; not every external link or browser rendering is certified.                                                                                                                                                                                                                                                     |
-| Reporting            | PASS WITH LIMITATIONS     | Schema validation, malformed input, exclusive output and complete bundle tamper detection pass; integrity is not authorship.                                                                                                                                                                                                                                 |
-| CI                   | PASS                      | Local formatting/syntax/docs/22 tests/demo/package checks pass. Remote Node 22/24 fast CI passed after an offline-cache fix: [40756755065](https://github.com/phlppgdfry/storage-doctor/actions/runs/40756755065). Linux service and composite Action workflow passed: [40754252153](https://github.com/phlppgdfry/storage-doctor/actions/runs/40754252153). |
-| Architecture         | PASS WITH LIMITATIONS     | Small transport/schema/scenario/report boundaries and SDK signing; no speculative plugin framework.                                                                                                                                                                                                                                                          |
-| Open source          | PASS WITH LIMITATIONS     | Contributor templates and security policy present; GitHub private vulnerability reporting enabled and read back true.                                                                                                                                                                                                                                        |
-| Product value        | PASS WITH LIMITATIONS     | Concrete local cross-protocol diagnostic/replay workflow; adoption, novelty and demand unproven.                                                                                                                                                                                                                                                             |
-| Publication          | PASS for source candidate | Authenticated owner confirmed; new empty public repository created without overwriting content. Full baseline history and candidate reviewed; pattern scan found no credentials. npm publication not authorized.                                                                                                                                             |
+| Gate                       | Required evidence                                                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Core correctness and tests | Exact intended commit passes supported Node 22/24 tests, formatting, syntax and documented fixture checks                                                    |
+| Local/real integration     | Bounded real Supabase scenarios and exact owned cleanup; failures classified without target-bug claims                                                       |
+| Hosted CI                  | Actual successful Node 22/24 jobs, logs and tested SHA                                                                                                       |
+| Distributed Action         | Separate checkout, real Action installation, success/fault/setup cases, exits, reports, artifact upload/download/integrity, redaction and cleanup            |
+| Package/install            | Exact intended artifact passes fresh and supported offline installation, entrypoints/help/demo/compare/export/verify, and has correct file allowlist/version |
+| Security                   | Scoped adversarial tests, credential review, dependency audit and redacted source/history/package scans; no unresolved critical finding                      |
+| Reproducibility            | Repeated packs are byte-identical; final SHA-256 manifest matches assets and source mapping                                                                  |
+| Documentation/presentation | Commands, links, limits, authentic capture and source/Action references match the distribution                                                               |
+| Release consistency        | Merge commit passes relevant post-merge checks; annotated v0.3.0 maps to the tested source; downloaded public assets match validated bytes                   |
 
-Public repository: https://github.com/phlppgdfry/storage-doctor. The GitHub source release is prepared from the verified candidate; npm is not published and needs separate authorization. npm lookup returned E404 for storage-doctor on 2026-10-28; this does not reserve ownership.
+PASS applies only to recorded evidence. Missing results are NOT EXECUTED, never PASS. Human usability interviews and independent human security review remain unperformed and are disclosed limitations, not claimed certifications. This release’s mandatory automated engineering gates do not imply market or commercial production validation.
 
-## Local release procedure
+## Hosted validation record
 
-1. Work on a focused branch with a clean, reviewable diff. Preserve historical example evidence.
-2. Install locked dependencies with `npm ci`.
-3. Run formatting, automated tests, fixture demo, package smoke installation and documentation checks advertised by the current package scripts. Record actual commands, versions and results.
-4. Start only the dedicated local Supabase project. Run integration, inspect failed or inconclusive cases, verify owned-resource cleanup and stop the same stack afterward.
-5. Generate a fresh example report and evidence bundle. Verify checksums, review the files for credentials and execute the documented replay against a newly provisioned disposable target. A recipe alone is not verified reproduction.
-6. Read the diff skeptically: protocol assumptions, backward compatibility, error classification, timeouts, cleanup and output paths. Resolve P0 findings before adding optional features.
-7. Check the packed file list. Confirm the installed CLI, documentation and examples agree. Check npm-name availability before planning distribution; availability does not reserve ownership.
+The initial `419b20e` PR passed [Node 22/24](https://github.com/phlppgdfry/storage-doctor/actions/runs/41143236077) and [real Supabase/Action checks](https://github.com/phlppgdfry/storage-doctor/actions/runs/41143236076).
 
-## Public GitHub procedure
+The new independent consumer gate initially failed at `690b74f`: [retained failed run](https://github.com/phlppgdfry/storage-doctor/actions/runs/41143649443). A missing `await` in the newly added checker compared a Promise to false for invalid setup. The fix has a focused regression test. The artifact API also exposed multiple different uploads under the same default name; the optional `artifact-name` input now permits unambiguous matrix/repeated-call selection while preserving the original default.
 
-The owner authorizes a public repository under `phlppgdfry` when critical gates pass. This does not authorize overwriting another repository, force-pushing, deleting existing content, npm publication or external announcements.
+At `9c3f576`, [Verify](https://github.com/phlppgdfry/storage-doctor/actions/runs/41144066363), [real integration](https://github.com/phlppgdfry/storage-doctor/actions/runs/41144066357) and [all four consumer cases](https://github.com/phlppgdfry/storage-doctor/actions/runs/41144066393) passed. Downloaded bundles were verified locally; actual logs show exits 0/1/2, masking of synthetic credentials and zero leftover fixture objects. The final intended and merge commits must pass the same gates; their exact SHAs/run URLs and final package checksum are recorded in the release’s `VALIDATION.json` asset. This avoids pretending an earlier SHA is the final tested source.
 
-1. Verify the authenticated account and whether `phlppgdfry/storage-doctor` already exists. Inspect existing content before deciding any remote configuration.
-2. Review **all commits and tracked files**, including old example reports, generated assets and deleted files still reachable from history. Scan for credentials and inspect findings rather than trusting a scanner's absence of matches.
-3. Confirm a private security-reporting route. GitHub private vulnerability reporting should be enabled and its reporting page checked. Do not advertise the route until it exists.
-4. Create or prepare the public repository only if no critical blocker remains. Push normally; never force-push. Record the actual URL and SHA after success.
-5. Inspect fast CI results. Trigger local-service integration CI separately. Keep pending checks visible; do not publish a verified-release claim while they are unresolved.
-6. Create a version tag or GitHub release only for a verified commit with reviewed release notes. A public source repository can exist before a release; say which state it is in.
+## Finalization procedure
 
-If authentication, account ownership, private reporting or CI cannot be verified, report the precise blocker and retain the local candidate. Never work around a publication approval failure.
+1. Preserve user changes, review the entire diff and scan reachable history/source/package for secrets. Never force-push.
+2. Pass all mandatory checks for the intended PR SHA. Inspect actual logs/artifacts and unresolved review comments. Mark the PR ready only after the gates pass.
+3. Merge while matching the reviewed head SHA. Preserve commit history; do not modify the v0.2.0 draft.
+4. Confirm the main merge SHA, run relevant post-merge Node/service/consumer checks, then build the exact package. Validate that exact archive on both supported Node versions, including a fresh consumer and supported offline mode. An empty dependency cache cannot install dependencies offline.
+5. Verify repeated packs, versions, executable/file list, audits and scans. Produce `SHA256SUMS` and `VALIDATION.json` with exact source/run/asset data. Checksums are integrity, not signatures or authorship proof.
+6. Check that v0.3.0 does not conflict with an existing tag/release; create an annotated tag on the validated merge commit. Publish the GitHub release and attach the validated archive and manifests.
+7. Download the public assets, verify their bytes, install the released archive, and run the documented demo/comparison/evidence flow. Check the public release and installation links.
+8. Only after confirmed publication, update CURRENT_STATE to STABLE — MAINTENANCE MODE. A status-only closure commit may follow the tag; it must not alter shipped sources or the package, and main must remain clean. Record both release and closure commits transparently.
 
-## Compatibility policy
+The public [v0.3.0 release](https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0) is the distribution record. [CURRENT_STATE](https://github.com/phlppgdfry/storage-doctor/blob/main/CURRENT_STATE.md) identifies actual publication/maintenance status. No release or npm publication may be inferred merely from a local archive.
 
-0.2.0 introduces report schema v2. Existing v1 examples remain historical evidence. Import behavior must be explicitly documented: accept only supported versions through validated conversion or reject them with an actionable message. Never silently reinterpret a v1 run as a v2 execution.
+## Maintenance boundary
 
-Status and exit-code changes must be listed in the changelog. FAIL describes a failed diagnostic observation, ERROR a harness failure, and INCONCLUSIVE insufficient target evidence. None is an automatically confirmed vendor defect.
-
-## After initial publication
-
-Ask for feedback on a specific local workflow. Record actual setup friction and report usefulness before building AI, adaptive testing or more providers. Keep announcements manual and avoid compatibility, performance or hiring claims that the evidence does not support.
+Security fixes, confirmed bugs and dependency maintenance remain allowed. New features require demonstrated user value, documented expectations and reviewable verification. No speculative provider/plugin/AI framework, permanent feature-development promise or upstream endorsement is implied. Contacting external users or publishing npm requires separate authorization.

@@ -10,6 +10,12 @@ inputs:
   pack:
     description: all, core, s3, cross-protocol or tus.
     default: all
+  artifact-name:
+    description: Optional unique evidence artifact name; set it for matrix jobs or repeated Action calls.
+    default: ""
+  baseline:
+    description: Optional consumer report.json path for an offline regression gate; must match this diagnostic build.
+    default: ""
 outputs:
   report-directory:
     description: Absolute path of generated evidence.
@@ -34,10 +40,21 @@ runs:
         SD_ACTION_PACK: ${{ inputs.pack }}
         SD_ACTION_OUT: ${{ steps.output.outputs.directory }}
       run: node "$GITHUB_ACTION_PATH/src/cli.js" check --local --ci --pack "$SD_ACTION_PACK" --out "$SD_ACTION_OUT"
+    - shell: bash
+      if: always() && steps.output.outcome == 'success' && inputs.baseline != ''
+      env:
+        SD_ACTION_BASELINE: ${{ inputs.baseline }}
+        SD_ACTION_OUT: ${{ steps.output.outputs.directory }}
+      run: node "$GITHUB_ACTION_PATH/src/cli.js" compare --baseline "$SD_ACTION_BASELINE" --report "$SD_ACTION_OUT/report.json"
+    - shell: bash
+      if: always() && steps.output.outcome == 'success'
+      env:
+        SD_ACTION_OUT: ${{ steps.output.outputs.directory }}
+      run: node "$GITHUB_ACTION_PATH/scripts/action-summary.js"
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
-        name: storage-doctor-${{ github.job }}-${{ github.run_attempt }}
+        name: ${{ inputs.artifact-name || format('storage-doctor-{0}-{1}', github.job, github.run_attempt) }}
         path: ${{ steps.output.outputs.directory }}
         if-no-files-found: warn
         retention-days: 7

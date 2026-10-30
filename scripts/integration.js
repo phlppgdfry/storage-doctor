@@ -2,12 +2,13 @@
 import { execFileSync } from "node:child_process";
 import { readFile, writeFile, appendFile } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { loadConfig } from "../src/config.js";
 import { run } from "../src/runner.js";
 import { writeReport } from "../src/report.js";
 import { directRequest } from "../src/transport.js";
-const workdir = new URL("..", import.meta.url).pathname;
+const workdir = fileURLToPath(new URL("..", import.meta.url));
 let status;
 try {
   status = JSON.parse(
@@ -55,6 +56,7 @@ try {
   ).trim();
 } catch {}
 const config = loadConfig({
+  SD_AUTH_CONTEXT: "local-service-role",
   SD_REST_URL: `${api}/storage/v1`,
   SD_TOKEN: token,
   SD_API_KEY: token,
@@ -116,6 +118,7 @@ if (process.argv[2] === "--provision-action") {
     flag: "wx",
   });
   const values = {
+    SD_AUTH_CONTEXT: config.authContext,
     SD_PROFILE: "supabase",
     SD_BUCKET: config.bucket,
     SD_REST_URL: config.restUrl,

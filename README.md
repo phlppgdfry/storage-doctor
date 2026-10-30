@@ -1,139 +1,120 @@
 # Storage Doctor
 
-**Trust the bytes. Inspect the evidence.**
+**Did a local storage change break the bytes—or just your test setup?**
 
-Diagnose a disposable **local Supabase Storage** target through REST, S3 and TUS. Verify exact bytes across APIs, understand failed checks, and export reviewable evidence without an AI key.
+Storage Doctor runs ten bounded checks across **Supabase REST, S3 and TUS**, records exact-byte assertions and cleanup outcomes, and compares two runs without turning missing evidence into a green result. Use it to investigate a local integration or check a storage upgrade before considering production changes.
 
-For self-hosting developers, integration-test authors and storage investigators. Ten focused scenarios; no universal compatibility score, cloud scanning or load generator. Independent project, not affiliated with Supabase.
+Independent, local-first and offline-reporting. No cloud targets, telemetry or AI key. Existing broad S3 suites and load generators solve different problems; [scope and alternatives](docs/product-validation.md).
 
-## See it in a minute
+**Version: 0.3.0.** Use the reviewed [GitHub release archive and checksums](https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0) or the source tag. No npm registry package is published. [Release process and gates](docs/release.md) · [Independent review packet](docs/review.md).
+
+Developed with AI assistance; the protocol contracts, source, controlled failures and validation evidence are open to inspection.
+
+## Try it safely
+
+From the release source, with **Node 22 or 24**:
 
 ```sh
-git clone https://github.com/phlppgdfry/storage-doctor.git
+git clone --branch v0.3.0 https://github.com/phlppgdfry/storage-doctor.git
 cd storage-doctor
 npm ci
-npm run demo
+node src/cli.js demo
 ```
 
-The command prints a new `reports/demo-UUID/report.html` path. Open that standalone file in a browser. **The demo uses a temporary protocol fixture, not Supabase.** To see a controlled corruption failure: `npm run demo -- --inject-corruption` (expected nonzero exit).
+Open the printed `report.html` path. This starts a temporary loopback **protocol fixture**, uses synthetic credentials and stops it afterward. It needs no Docker or storage account. **It does not test Supabase or establish vendor compatibility.**
 
-[Inspect the current real Supabase run](examples/v0.2.0/report.md) · [Current validation](docs/validation.md) · [Security model](SECURITY.md)
+After installing a reviewed tarball in a separate directory, use `node_modules/.bin/storage-doctor demo`. Do not assume `npx storage-doctor` belongs to this project. [Installation validation](docs/validation.md).
 
-## Run against a real engine
+## See a regression and reproduce it
 
-Requires Node **22 or 24**, Docker and Supabase CLI **2.122.0** for the supplied stack. No npm package has been published: use the checkout, or install an artifact you have packed and reviewed. Do not assume `npx storage-doctor` belongs to this project.
+Use fresh output directories. The second and third commands below **intentionally exit 1**:
+
+```sh
+node src/cli.js demo --out reports/good
+node src/cli.js demo --inject-corruption --out reports/bad
+node src/cli.js compare --baseline reports/good/report.json --report reports/bad/report.json
+node src/cli.js export rest-to-s3 --report reports/bad/report.json --out reports/reproduction
+node src/cli.js verify --report reports/reproduction
+```
+
+The same validated engine generates both fixture runs. Comparison verifies the complete checksum bundles before classifying PASS→FAIL. Export retains expected/observed behavior, traces, seed and a reproduction recipe. Repeat the first three commands with new directories to reproduce the injected failure. A fixture disagreement is not a newly discovered storage defect.
+
+For a genuine timed terminal capture, run `npm run demo:record` from the checkout. It executes these commands, checks actual exits and retains a roughly 45-second `.cast`, transcript and original evidence under a new `reports/showcase-*` directory. No screenshots or fictional output are generated. [Actual recording](examples/showcase/regression.cast) · [Readable transcript](examples/showcase/transcript.txt) · [Capture metadata](examples/showcase/recording.json).
+
+## Compare two real local runs
+
+The supplied disposable stack requires Docker and **Supabase CLI 2.122.0**:
 
 ```sh
 supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
 npm run integration
+# Keep the first printed report directory as BASELINE.
+# Apply the intended change to this disposable local target, or repeat unchanged.
+npm run integration
+# Keep the second printed report directory as CURRENT.
+node src/cli.js compare --baseline BASELINE/report.json --report CURRENT/report.json --json
 supabase stop
 ```
 
-This starts only project `storage-doctor` on ports 55431/55432. The helper reads its local credentials in memory, creates a unique private test bucket, runs the diagnostics, removes its objects and deletes only that bucket. It prints the report directory. A failed bucket deletion never triggers an empty-bucket operation.
+Replace `BASELINE` and `CURRENT` with the actual printed paths. The helper reads credentials in memory, creates a unique private bucket, executes the checks, removes its exact objects and deletes only that bucket. It uses ports **55431/55432** and a declared `local-service-role` authentication context. A failed bucket deletion never triggers bucket-wide emptying. No target-change automation is implied.
 
-For an existing disposable target, create a dedicated `sd-*` or `storage-doctor-*` bucket and fill an ignored `.env` from [the example](examples/local.env.example):
+For your own disposable target, start with [the environment example](examples/local.env.example), provision a dedicated `sd-*` or `storage-doctor-*` bucket, then run:
 
 ```sh
 node --env-file=.env src/cli.js doctor
 node --env-file=.env src/cli.js check --local --pack core
-node --env-file=.env src/cli.js check --local --only rest-to-s3 --json
 ```
 
-`doctor` validates configuration without contacting storage. `check` requires credentials that can write, read and delete its test objects; it never creates or deletes buckets. See [configuration, permissions and troubleshooting](docs/configuration.md).
+`doctor` is a non-network configuration check. Credentials must permit the selected reads, writes and exact object deletes. Set `SD_AUTH_CONTEXT` to a non-secret policy/role label before recording live baselines; change the label whenever effective permissions change. The label is user-declared, **not an authorization attestation**. [Configuration and troubleshooting](docs/configuration.md).
 
-## Safety before features
+## Read the evidence
 
-- Literal `127.0.0.1` / `[::1]` endpoints only; DNS names and remote/cloud targets are rejected.
-- Direct sockets bypass ambient proxies, refuse redirects and check the connected address. TLS validation stays enabled.
-- UUID namespaces isolate concurrent runs; mutation and cleanup enforce owned keys.
-- Sequential checks, one attempt, 8 MiB request/response limits, 80 exploration requests, 120-second exploration deadline and 30-second aggregate cleanup allowance.
-- SIGINT/SIGTERM cancel exploration while cleanup remains possible. Force-kill, crashes or unreachable targets can still leave disposable resources; cleanup warnings must be reviewed.
-- Reports omit credentials, headers and response bodies. Imports are bounded and validated. New output directories are required; existing evidence is never overwritten.
+[Real Supabase snapshot](examples/v0.3.0-rc2/report.md) · [Exact verification evidence](docs/validation.md) · [Report and comparison contracts](docs/report-format.md)
 
-Loopback can still tunnel to production. Do not configure such a tunnel. Privileged integration credentials do not establish end-user RLS isolation.
+| Diagnostic status | Meaning                                                                          |
+| ----------------- | -------------------------------------------------------------------------------- |
+| PASS              | Executed assertions passed in this run                                           |
+| FAIL              | Contract disagreement; investigate setup and semantics before blaming the target |
+| INCONCLUSIVE      | Availability, authorization, timeout or budget prevented a conclusion            |
+| UNSUPPORTED       | Selected profile excludes required protocols                                     |
+| SKIPPED / ERROR   | Incomplete evaluation / harness error                                            |
 
-## What is tested?
+Comparison requires a healthy baseline, the same diagnostic source/version, mode, scenario set, payload, seed, profile, region, timeout, budgets and declared auth context. Target versions may differ and are reported. Scenario order, durations, endpoint and bucket identities do not drive regression classification.
 
-| Pack             | Checks                                                                                    |
-| ---------------- | ----------------------------------------------------------------------------------------- |
-| `core`           | Binary roundtrip, empty object, S3 metadata/size                                          |
-| `s3`             | Core plus URL-sensitive supported keys and range reads                                    |
-| `cross-protocol` | REST→S3, S3→REST, overwrite visibility, deletion visibility, completed TUS bytes          |
-| `tus`            | Create, offsets, resume, wrong-offset rejection, unchanged offset and final REST/S3 bytes |
-| `all`            | All ten scenarios; default                                                                |
+| Comparison exit | Meaning                                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| **0**           | Valid comparable checks remain passing                                                    |
+| **1**           | Previously passing checks now fail; no root cause is established                          |
+| **2**           | Lost assurance, invalid/incomparable evidence, unsuitable baseline or cleanup uncertainty |
 
-These are built-in selectors, not third-party plugins. `SD_PROFILE=s3` excludes Supabase-only protocols and reports them as UNSUPPORTED by the profile. This alone does not establish another vendor's compatibility.
+FAIL→PASS is not accepted as a healthy-baseline comparison. Fixture/live, missing scenarios, unknown schemas, missing manifests and checksum mismatches cannot return a successful comparison. An attacker who rewrites both evidence and its manifest can forge integrity: **checksums do not prove authenticity**.
 
-```sh
-node src/cli.js list --pack cross-protocol --json
-```
+Each run writes validated JSON, Markdown, standalone HTML and SHA-256 checksums. HTML needs no JavaScript or external assets. New output directories are required; existing evidence is not overwritten. `--json` emits one JSON value; `--quiet` suppresses successful output. Other commands: `list`, `report`, `export`, `verify` and the fixed heuristic `plan`. See `--help`.
 
-TUS uses a 6 MiB first chunk. It tests continuation across requests and a rejected duplicate offset, **not** mid-socket interruption, concurrency, server restart or crash recovery. Metadata coverage is S3 HEAD, not a universal mapping between protocol schemas. [Contracts and scenario design](docs/architecture.md).
+## Integrate into CI
 
-## Understand the output
+The composite [GitHub Action](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/action.yml) expects an already provisioned disposable loopback target and `SD_*` credentials. It runs checks, optionally compares a trusted baseline, writes a concise job summary and uploads evidence. It does not provision storage or authorize remote targets.
 
-The shipped real-run snapshot records ten passing scenarios; current upgrade evidence and limitations are in [validation](docs/validation.md).
-
-```text
-PASS          rest-to-s3
-  All scenario assertions passed.
-```
-
-| Status       | Meaning                                                                        |
-| ------------ | ------------------------------------------------------------------------------ |
-| PASS         | All scenario assertions passed in this run                                     |
-| FAIL         | An expected contract disagreed; investigate before claiming a target defect    |
-| UNSUPPORTED  | Selected profile excludes required protocols                                   |
-| SKIPPED      | Not executed after cancellation/budget exhaustion                              |
-| INCONCLUSIVE | Availability, authorization, timeout or budget prevented a reliable conclusion |
-| ERROR        | Unexpected harness failure, not a vendor finding                               |
-
-Exit **0**: evaluated checks pass. **1**: failed diagnostic. **2**: setup/harness/incomplete evaluation or cleanup problem. `--json` emits one JSON value; `--quiet` suppresses successful output; `--ci` is noninteractive. Failures are never silently reclassified as unsupported features.
-
-## Share evidence, then replay
-
-Every run writes JSON, Markdown, offline HTML and SHA-256 checksums. HTML includes environment, status breakdown, expected/observed behavior, request traces, replay guidance and cleanup outcomes. It needs no external assets or JavaScript.
-
-```sh
-node src/cli.js export rest-to-s3 --report RUN/report.json --out NEW_BUNDLE
-node src/cli.js verify --report NEW_BUNDLE
-node src/cli.js report --report RUN/report.json --out NEW_RENDER
-node src/cli.js plan --report RUN/report.json
-```
-
-The bundle contains a focused result, normalized original observations and a replay recipe. All five evidence files are hashed. Schema 1 history is read through an explicit validated conversion; new reports use schema 2. Source-code fingerprints help distinguish builds. Checksums are integrity checks, not signatures. Review local identifiers before sharing.
-
-A replay still needs a separately provisioned engine and private credentials. No novel Supabase defect or independent upstream reproduction is claimed. `plan` is a fixed retest heuristic; it does not demonstrate self-improvement. [Report format and replay](docs/report-format.md).
-
-## CI and GitHub Action
-
-Fast CI checks Node 22/24, formatting, syntax, local fixtures and a clean offline package installation. A separate manual workflow starts real Supabase services. Expensive reliability campaigns are not run on every PR.
-
-The repository includes a composite [GitHub Action](action.yml). It expects an **already provisioned disposable loopback target** and `SD_*` credentials supplied by your workflow; it does not set up storage or authorize a remote target:
-
-```yaml
-- uses: phlppgdfry/storage-doctor@v0.2.0
-  with:
-    profile: supabase
-    pack: core
-  env:
-    SD_BUCKET: sd-ci-test
-    # Supply the other documented SD_* values securely in your local-service job.
-```
-
-Pin the reviewed release commit in production workflows. The Action runs the CLI and uploads evidence as an artifact; respect your organization's artifact policy. Its remote validation status is recorded in [release readiness](docs/release.md).
-
-## Development
+Use the [separate-consumer workflow](examples/consumer-workflow.yml) with an **actual reviewed 40-character commit SHA** after authorized publication. The v0.3.0 Action includes the baseline and summary additions. Pin a reviewed commit in your workflow, and set `artifact-name` to a unique value for matrix jobs or repeated calls. The four-case [hosted consumer workflow](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/.github/workflows/consumer.yml) checks actual success/failure/setup behavior and artifact upload/download/verification. See [validation](docs/validation.md).
 
 ```sh
 npm run verify
 npm run package:smoke
+npm run package:offline # Empty consumer; prewarmed dependency cache, no npm network
+npm run package:fresh   # Empty private cache; registry access required
+npm run action:smoke
 ```
 
-The wire fixture deliberately does not verify SigV4 or emulate PostgreSQL. Security tests cover proxy isolation, oversized/error responses, stalls, malicious report imports, symlinks, ownership, cancellation and concurrent runs. The installed-package smoke executes every advertised command against a clearly labelled fixture.
+The normal smoke uses the locked graph and `--prefer-offline`; it may contact npm. [Contributing](CONTRIBUTING.md) explains how to add a focused, source-backed diagnostic without contacting the author.
 
-[Contributing](CONTRIBUTING.md) · [Architecture](docs/architecture.md) · [Audit](docs/upgrade-audit.md) · [Release gates](docs/release.md) · [Changelog](CHANGELOG.md) · [Roadmap](docs/roadmap.md)
+## Limits and safety
 
-Existing tools already cover broad S3 compatibility and benchmarking. Our focus is a short local cross-protocol diagnosis with portable evidence; [comparison and demand assumptions](docs/product-validation.md). Optional AI explanations, adaptive research, shrinking and more providers remain roadmap items. No hidden telemetry or mandatory paid API.
+- Only literal `127.0.0.1` / `[::1]` endpoints. Direct sockets bypass ambient proxies, refuse redirects and retain TLS validation. A loopback tunnel to production is still production; do not use one.
+- UUID-owned object keys; sequential execution; 80 exploration requests, 120-second campaign, 8 MiB request/response limits and a separate 30-second aggregate cleanup allowance. Cancellation permits cleanup; process death or an unreachable target can leave disposable resources.
+- Packs: `core`, `s3`, `cross-protocol`, `tus`, `all`. `SD_PROFILE=s3` excludes REST/TUS; it is not provider capability discovery. [Scenario contracts](docs/architecture.md).
+- TUS checks offsets and continuation with a 6 MiB first chunk, not broken sockets, restart or crash recovery. Metadata coverage is S3 HEAD, not universal metadata mapping.
+- Verified locally on macOS/arm64; hosted workflows target Linux. Windows execution remains unverified.
+- Matching declared inputs does not establish identical permissions, dependencies, topology or configuration. No production/RLS certification, universal S3 compliance, benchmark, upstream endorsement or market validation is claimed.
+- AI, automatic shrinking, adaptive research and additional providers remain deferred. `plan` is a fixed retest heuristic, not self-improvement.
 
-MIT licensed. To report a suspected vulnerability, use the private route in [SECURITY.md](SECURITY.md), not a public issue.
+[Security/private reporting](SECURITY.md) · [Architecture](docs/architecture.md) · [Changelog](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/CHANGELOG.md) · [Release process](docs/release.md) · [Roadmap](docs/roadmap.md). MIT licensed.

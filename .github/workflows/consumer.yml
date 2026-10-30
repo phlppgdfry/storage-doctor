@@ -1,0 +1,81 @@
+name: Distributed Action consumer
+on:
+  push:
+    branches: [main, work/v0.3.0-regression-evidence]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  consumer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [success, corruption, invalid-pack, missing-credentials]
+    env:
+      SD_CONSUMER_CASE: ${{ matrix.scenario }}
+      SD_TESTED_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: phlppgdfry/storage-doctor
+          ref: ${{ env.SD_TESTED_COMMIT }}
+          path: _action
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - name: Start synthetic fixture
+        id: fixture
+        shell: bash
+        run: |
+          node _action/scripts/hosted-consumer-fixture.js > "$RUNNER_TEMP/fixture.log" 2>&1 &
+          for _ in {1..50}; do
+            if test -f "$RUNNER_TEMP/fixture.ready"; then
+              cat "$RUNNER_TEMP/fixture.log"
+              exit 0
+            fi
+            sleep 0.1
+          done
+          echo "Fixture did not start; no storage evidence is available."
+          exit 2
+      - name: Run distributed Action
+        id: doctor
+        continue-on-error: true
+        uses: ./_action
+        with:
+          profile: supabase
+          artifact-name: storage-doctor-consumer-${{ matrix.scenario }}-${{ github.run_attempt }}
+          pack: ${{ matrix.scenario == 'invalid-pack' && 'unknown-pack' || 'core' }}
+      - name: Download Action evidence
+        if: always() && (matrix.scenario == 'success' || matrix.scenario == 'corruption')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "storage-doctor-consumer-${SD_CONSUMER_CASE}-${GITHUB_RUN_ATTEMPT}" --dir "$RUNNER_TEMP/retrieved-evidence"
+      - name: Stop synthetic fixture
+        if: always() && steps.fixture.outcome == 'success'
+        run: |
+          kill -TERM "$(cat "$RUNNER_TEMP/fixture.pid")"
+          for _ in {1..50}; do
+            if test -f "$RUNNER_TEMP/fixture-cleanup.json"; then exit 0; fi
+            sleep 0.1
+          done
+          exit 2
+      - name: Assert consumer result and cleanup
+        if: always() && steps.fixture.outcome == 'success'
+        env:
+          SD_ACTION_OUTCOME: ${{ steps.doctor.outcome }}
+          SD_GENERATED_REPORT: ${{ steps.doctor.outputs.report-directory }}
+        run: node _action/scripts/hosted-consumer-assert.js
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: consumer-verdict-${{ matrix.scenario }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/consumer-verdict.json
+            ${{ runner.temp }}/fixture-cleanup.json
+          if-no-files-found: error
+          retention-days: 7

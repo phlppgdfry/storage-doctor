@@ -1,0 +1,91 @@
+STORAGE DOCTOR — actual command recording / about 45 seconds
+FIXTURE + INJECTED CORRUPTION. This is not a Supabase defect.
+
+$ node ../../src/cli.js demo --out good
+PROTOCOL FIXTURE — not Supabase compatibility evidence.
+PASSED        s3-roundtrip
+  All scenario assertions passed.
+PASSED        s3-empty
+  All scenario assertions passed.
+PASSED        s3-path
+  All scenario assertions passed.
+PASSED        s3-range
+  All scenario assertions passed.
+PASSED        s3-metadata
+  All scenario assertions passed.
+PASSED        rest-to-s3
+  All scenario assertions passed.
+PASSED        s3-to-rest
+  All scenario assertions passed.
+PASSED        rest-overwrite-s3
+  All scenario assertions passed.
+PASSED        s3-delete-rest
+  All scenario assertions passed.
+PASSED        tus-resume-cross
+  All scenario assertions passed.
+Report: /Users/philippegodfroy/storage-doctor/reports/showcase-2a428fbb-9693-4a14-99f7-a26d69386252/good/report.html
+Exit: 0
+[actual exit: 0; expected: 0]
+
+$ node ../../src/cli.js demo --inject-corruption --out bad
+PROTOCOL FIXTURE — not Supabase compatibility evidence.
+FAILED        s3-roundtrip
+  Downloaded bytes must exactly match uploaded bytes.
+FAILED        s3-empty
+  Downloaded bytes must exactly match uploaded bytes.
+FAILED        s3-path
+  Downloaded bytes must exactly match uploaded bytes.
+FAILED        s3-range
+  Content-Range must match requested slice.
+FAILED        s3-metadata
+  HEAD size must match bytes.
+FAILED        rest-to-s3
+  Downloaded bytes must exactly match uploaded bytes.
+FAILED        s3-to-rest
+  Downloaded bytes must exactly match uploaded bytes.
+FAILED        rest-overwrite-s3
+  Downloaded bytes must exactly match uploaded bytes.
+PASSED        s3-delete-rest
+  All scenario assertions passed.
+FAILED        tus-resume-cross
+  Downloaded bytes must exactly match uploaded bytes.
+Report: /Users/philippegodfroy/storage-doctor/reports/showcase-2a428fbb-9693-4a14-99f7-a26d69386252/bad/report.html
+Exit: 1
+[actual exit: 1; expected: 1]
+
+$ node ../../src/cli.js compare --baseline good/report.json --report bad/report.json
+REGRESSION (fixture)
+
+s3-roundtrip: passed → failed
+s3-empty: passed → failed
+s3-path: passed → failed
+s3-range: passed → failed
+s3-metadata: passed → failed
+rest-to-s3: passed → failed
+s3-to-rest: passed → failed
+rest-overwrite-s3: passed → failed
+tus-resume-cross: passed → failed
+Inspect both reports, verify bundle integrity, and reproduce changed checks with the recorded seed before claiming a defect.
+Exit: 1
+[actual exit: 1; expected: 1]
+
+$ node ../../src/cli.js export rest-to-s3 --report bad/report.json --out bundle
+{
+  "bundleDirectory": "/Users/philippegodfroy/storage-doctor/reports/showcase-2a428fbb-9693-4a14-99f7-a26d69386252/bundle"
+}
+[actual exit: 0; expected: 0]
+
+$ node ../../src/cli.js verify --report bundle
+{
+  "verified": true,
+  "files": 5,
+  "authentication": "Checksums verify integrity, not authorship."
+}
+[actual exit: 0; expected: 0]
+
+Reproduce: run these same commands in a new directory.
+Evidence: good/, bad/, bundle/ contain the actual reports and checksums.
+An unavailable or incompatible comparison exits 2, not 0.
+Review protocol expectations before attributing any real target defect.
+
+Recording complete — actual outputs and evidence retained.

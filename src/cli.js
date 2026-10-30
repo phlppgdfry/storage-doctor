@@ -3,13 +3,22 @@ import { parseArgs } from "node:util";
 import { resolve } from "node:path";
 import { loadConfig, publicConfig, ConfigurationError } from "./config.js";
 import { scenarios } from "./scenarios.js";
-import { run, packs } from "./runner.js";
-import { writeReport, exportFinding, verifyBundle } from "./report.js";
+import { run, packs, selectScenarios } from "./runner.js";
+import {
+  writeReport,
+  exportFinding,
+  verifyBundle,
+  readVerifiedReport,
+} from "./report.js";
 import { readReport, ReportError } from "./schema.js";
+import { compareReports } from "./compare.js";
+import { demo } from "./demo.js";
 import { VERSION } from "./version.js";
 
 const usage = `Storage Doctor ${VERSION} — Trust the bytes. Inspect the evidence.
 
+  storage-doctor demo [--out NEW_DIR] [--inject-corruption]  Local fixture; no credentials
+  storage-doctor compare --baseline FILE --report FILE     Offline CI regression gate
   storage-doctor doctor [--json]                Validate local configuration; no network
   storage-doctor list [--pack NAME] [--json]     Explain available diagnostics
   storage-doctor check --local [--pack NAME] [--only ID] [--out NEW_DIR]
@@ -27,11 +36,14 @@ Core functionality needs no AI key. npm publication is not yet authorized.`;
 class UsageError extends Error {}
 let json = false;
 async function main() {
+  json = process.argv.includes("--json");
   let args;
   try {
     args = parseArgs({
       allowPositionals: true,
       options: {
+        baseline: { type: "string" },
+        "inject-corruption": { type: "boolean" },
         local: { type: "boolean" },
         ci: { type: "boolean" },
         help: { type: "boolean", short: "h" },
@@ -68,6 +80,8 @@ async function main() {
   }
   const [command, id] = p;
   const options = {
+    demo: ["out", "json", "quiet", "inject-corruption"],
+    compare: ["baseline", "report", "json", "quiet"],
     doctor: ["json", "quiet"],
     list: ["json", "quiet", "pack"],
     check: ["local", "ci", "json", "quiet", "out", "only", "pack"],
@@ -84,6 +98,35 @@ async function main() {
     throw new UsageError(
       "Unknown command, extra argument or misplaced flag. Run storage-doctor --help.",
     );
+  if (command === "demo") {
+    const report = await demo({ out: v.out, corrupt: v["inject-corruption"] });
+    emit(
+      json
+        ? report
+        : `PROTOCOL FIXTURE — not Supabase compatibility evidence.\n${report.results.map((r) => `${r.status.toUpperCase().padEnd(13)} ${r.id}\n  ${r.reason}`).join("\n")}\nReport: ${report.reportDirectory}/report.html\nExit: ${report.exitCode}`,
+    );
+    process.exitCode = report.exitCode;
+    return;
+  }
+  if (command === "compare") {
+    if (!v.baseline || !v.report)
+      throw new UsageError(
+        "Supply --baseline FILE and --report FILE. Comparison is offline and requires a healthy baseline from the same diagnostic build.",
+      );
+    const comparison = compareReports(
+      await readVerifiedReport(resolve(v.baseline)),
+      await readVerifiedReport(resolve(v.report)),
+    );
+    comparison.integrity =
+      "Both original bundles verified; checksums do not authenticate authorship.";
+    emit(
+      json
+        ? comparison
+        : `${comparison.outcome.toUpperCase()} (${comparison.mode})\n${comparison.blockers.map((b) => `Blocked: ${b}`).join("\n")}\n${comparison.changes.map((c) => `${c.id}: ${c.before} → ${c.after}`).join("\n")}\n${comparison.nextStep}\nExit: ${comparison.exitCode}`,
+    );
+    process.exitCode = comparison.exitCode;
+    return;
+  }
   if (command === "doctor") {
     const c = loadConfig();
     emit({
@@ -120,6 +163,13 @@ async function main() {
       throw new UsageError(
         "Supply --local to confirm a disposable local target. Run doctor to check configuration first.",
       );
+    try {
+      selectScenarios({ only: v.only, pack: v.pack });
+    } catch {
+      throw new UsageError(
+        "Unknown pack, unknown scenario or scenario outside selected pack. Use list --pack NAME to inspect available checks.",
+      );
+    }
     const config = loadConfig(),
       controller = new AbortController(),
       cancel = () => controller.abort();

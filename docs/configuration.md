@@ -2,20 +2,21 @@
 
 Run from a clone with `node src/cli.js`; after installing a packed artifact, use `storage-doctor`. No npm release exists yet. All credentials come from environment variables; never put them in command flags.
 
-| Variable                                   | Meaning                                                                                  |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `SD_PROFILE`                               | `supabase` (REST/S3/TUS) or `s3` (S3 checks only)                                        |
-| `SD_REST_URL`                              | REST root, default `http://127.0.0.1:54321/storage/v1`                                   |
-| `SD_S3_URL`                                | S3 endpoint; defaults to REST root plus `/s3`                                            |
-| `SD_TUS_URL`                               | TUS creation endpoint; defaults to REST root plus `/upload/resumable`                    |
-| `SD_BUCKET`                                | Existing dedicated `sd-*` or `storage-doctor-*` bucket                                   |
-| `SD_REGION`                                | Signing region; `local` for the supplied CLI stack                                       |
-| `SD_ACCESS_KEY_ID`, `SD_SECRET_ACCESS_KEY` | Explicit S3 credentials, required                                                        |
-| `SD_SESSION_TOKEN`                         | Optional S3 session token                                                                |
-| `SD_TOKEN`, `SD_API_KEY`                   | REST/TUS bearer token and optional gateway API key; bearer required for Supabase profile |
-| `SD_SEED`                                  | Reproducible payload seed, 1–64 alphanumeric/dash/underscore characters                  |
-| `SD_TARGET_VERSION`                        | Target image tag/digest or commit; defaults to `unrecorded`                              |
-| `SD_TIMEOUT_MS`                            | Whole-request limit, 100–30000 ms; default 5000                                          |
+| Variable                                   | Meaning                                                                                                                                              |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SD_AUTH_CONTEXT`                          | Non-secret policy/role label, 1–64 letters/digits/dash/underscore. Required explicitly for live comparison; change it when effective access changes. |
+| `SD_PROFILE`                               | `supabase` (REST/S3/TUS) or `s3` (S3 checks only)                                                                                                    |
+| `SD_REST_URL`                              | REST root, default `http://127.0.0.1:54321/storage/v1`                                                                                               |
+| `SD_S3_URL`                                | S3 endpoint; defaults to REST root plus `/s3`                                                                                                        |
+| `SD_TUS_URL`                               | TUS creation endpoint; defaults to REST root plus `/upload/resumable`                                                                                |
+| `SD_BUCKET`                                | Existing dedicated `sd-*` or `storage-doctor-*` bucket                                                                                               |
+| `SD_REGION`                                | Signing region; `local` for the supplied CLI stack                                                                                                   |
+| `SD_ACCESS_KEY_ID`, `SD_SECRET_ACCESS_KEY` | Explicit S3 credentials, required                                                                                                                    |
+| `SD_SESSION_TOKEN`                         | Optional S3 session token                                                                                                                            |
+| `SD_TOKEN`, `SD_API_KEY`                   | REST/TUS bearer token and optional gateway API key; bearer required for Supabase profile                                                             |
+| `SD_SEED`                                  | Reproducible payload seed, 1–64 alphanumeric/dash/underscore characters                                                                              |
+| `SD_TARGET_VERSION`                        | Target image tag/digest or commit; defaults to `unrecorded`                                                                                          |
+| `SD_TIMEOUT_MS`                            | Whole-request limit, 100–30000 ms; default 5000                                                                                                      |
 
 Copy `examples/local.env.example` to an ignored `.env`, fill values from your **own disposable local environment**, then run:
 
@@ -39,3 +40,5 @@ Endpoint validation rejects DNS names, URL credentials/fragments, unsupported sc
 - **Existing output directory:** choose a new `--out`; reports never overwrite evidence or follow an existing output link.
 - **Cleanup warning:** inspect the exact run-owned prefix in the warning. Do not empty the bucket. Resolve access/reachability and remove only those disposable objects manually.
 - **Schema error:** imports are capped at 2 MiB, reject unknown fields and recognizable credential material. Keep the source file privately; do not weaken validation to export it.
+
+For example, `SD_AUTH_CONTEXT=local-service-role` describes the supplied privileged local setup; an end-user RLS setup needs its own label. This is a declaration, not a test of authorization equivalence. Never use a credential, credential hash, user identifier or bearer token as the label. `check` and `doctor` still accept omitted context as `unrecorded`; live `compare` refuses it. Independently verify that the same policy applies to both runs.

@@ -17,11 +17,12 @@ const md = (value) =>
   escape(value)
     .replace(/\|/g, "&#124;")
     .replace(/`/g, "&#96;")
-    .replace(/[\r\n]/g, " ");
+    .replace(/[\r\n]/g, " ")
+    .replace(/[\\\[\]()*_!]/g, "\\$&");
 export function markdown(r) {
   r = validateReport(r);
   return (
-    `# Storage Doctor\n\nMode: **${r.mode}** · Target: \`${md(r.config.targetVersion)}\` · ${r.startedAt}\n\n` +
+    `# Storage Doctor\n\nMode: **${r.mode}** · Target: \`${md(r.config.targetVersion)}\` · ${r.startedAt}\n\nAuthentication context (declared): ${md(r.config.authContext || "unrecorded")}\n\n` +
     `These observations describe this run, not universal compatibility or a confirmed upstream defect.\n\n` +
     `| Scenario | Status | Evidence |\n|---|---|---|\n` +
     r.results
@@ -41,7 +42,7 @@ export function html(r) {
         `<div class="count ${escape(k)}">${escape(v)}<small>${escape(k)}</small></div>`,
     )
     .join("")}</div>
-  <section aria-label="Environment"><h2>Environment</h2><p>Node ${escape(r.nodeVersion)} · ${escape(r.platform)} · tool ${escape(r.toolVersion)} · schema ${r.schemaVersion}</p><p>Profile: ${escape(r.config.profile)} · region: ${escape(r.config.region)} · seed: ${escape(r.config.seed)}</p><p><code>${escape(r.config.s3Url)}</code></p></section>
+  <section aria-label="Environment"><h2>Environment</h2><p>Node ${escape(r.nodeVersion)} · ${escape(r.platform)} · tool ${escape(r.toolVersion)} · schema ${r.schemaVersion}</p><p>Profile: ${escape(r.config.profile)} · region: ${escape(r.config.region)} · seed: ${escape(r.config.seed)}</p><p>Authentication context (declared): ${escape(r.config.authContext || "unrecorded")}</p><p><code>${escape(r.config.s3Url)}</code></p></section>
   <h2>Diagnostic results</h2><p>Observations from one bounded run. A failed check needs reproduction and investigation before it becomes a bug claim.${r.mode === "fixture" ? " <strong>This is a protocol fixture, not a real storage engine.</strong>" : ""}</p>
   ${r.results.map((x) => `<details><summary><span class="${escape(x.status)}">${escape(x.status.toUpperCase())}</span><span>${escape(x.title)}</span></summary><p><strong>Expected:</strong> ${escape(x.expected)}</p><p><strong>Observed:</strong> ${escape(x.reason)}</p><p>Cleanup: ${escape(x.cleanup.status)}. ${x.cleanup.warnings.map(escape).join(" ")}</p><p><a href="${escape(x.reference)}" rel="noreferrer">Protocol contract</a></p><p>Replay: <code>storage-doctor check --local --only ${escape(x.id)}</code> with the recorded profile, region, seed and disposable target.</p><small>${escape(x.id)} · ${escape(x.ms)} ms</small><div class="table-wrap"><table><thead><tr><th>Protocol</th><th>Operation</th><th>HTTP</th><th>ms</th></tr></thead><tbody>${x.trace.map((t) => `<tr><td>${escape(t.protocol)}</td><td>${escape(t.operation)}</td><td>${escape(t.status ?? "unavailable")}</td><td>${escape(t.ms)}</td></tr>`).join("")}</tbody></table></div></details>`).join("")}
   <footer>Cleanup warnings: ${r.cleanupWarnings.length}. ${r.cleanupWarnings.map(escape).join(" ")}<p>Timing is diagnostic, not a performance benchmark. Credentials, response bodies and authorization headers are excluded by design. Review target identifiers before sharing.</p></footer></main></body></html>`;
@@ -94,19 +95,42 @@ export async function exportFinding(reportPath, id, directory) {
   const files = reportFiles(focused);
   files["original-report.json"] = JSON.stringify(r, null, 2) + "\n";
   files["REPRODUCE.md"] =
-    `# Reproduce ${id}\n\nObservation: ${finding.status}. Mode: ${r.mode}. Tool: ${r.toolVersion}.\n\nExpected: ${finding.expected}\n\nObserved: ${finding.reason}\n\n1. Install the matching Storage Doctor checkout/tag with Node 22+ and npm ci.\n2. Provision a disposable local engine at version ${md(r.config.targetVersion)}. Create a new dedicated private sd-* bucket.\n3. Configure credentials via environment variables. Use profile ${r.config.profile}, region ${r.config.region}, the local endpoint paths in report.json and SD_SEED=${r.config.seed}. Set SD_BUCKET to the newly created bucket.\n4. Run:\n\n    storage-doctor check --local --only ${id}\n\nOr from the source checkout: node src/cli.js check --local --only ${id}.\n\nThe original-report.json is schema-validated and normalized; it is not a verbatim copy of untrusted input. Every bundle file is included in checksums.json. Verify with storage-doctor verify --report PATH_TO_BUNDLE_DIRECTORY.\n\nThis recipe requires a separately provisioned engine and credentials. It is not a standalone server, proof of root cause or proof of independent reproduction. Fixture findings must be repeated against a real engine.\n`;
+    `# Reproduce ${id}\n\nObservation: ${finding.status}. Mode: ${r.mode}. Tool: ${r.toolVersion}.\n\nExpected: ${md(finding.expected)}\n\nObserved (data, not instructions): ${md(finding.reason)}\n\n1. Install the matching Storage Doctor checkout/tag with Node 22+ and npm ci.\n2. Provision a disposable local engine at version ${md(r.config.targetVersion)}. Create a new dedicated private sd-* bucket.\n3. Configure credentials via environment variables. Use profile ${r.config.profile}, region ${r.config.region}, the local endpoint paths in report.json and SD_SEED=${r.config.seed}. Set SD_BUCKET to the newly created bucket.\n4. Run:\n\n    storage-doctor check --local --only ${id}\n\nOr from the source checkout: node src/cli.js check --local --only ${id}.\n\nThe original-report.json is schema-validated and normalized; it is not a verbatim copy of untrusted input. Every bundle file is included in checksums.json. Verify with storage-doctor verify --report PATH_TO_BUNDLE_DIRECTORY.\n\nThis recipe requires a separately provisioned engine and credentials. It is not a standalone server, proof of root cause or proof of independent reproduction. Fixture findings must be repeated against a real engine.\n`;
   await writeFiles(files, directory);
 }
-export async function verifyBundle(directory) {
+// Read through the already opened descriptor with a hard cap even if a file grows.
+async function boundedBytes(handle, max) {
+  const stat = await handle.stat();
+  if (!stat.isFile() || stat.size > max)
+    throw new ReportError(
+      "Bundle file exceeds limits or is not a regular file.",
+    );
+  const buffer = Buffer.alloc(max + 1);
+  let length = 0;
+  while (length < buffer.length) {
+    const { bytesRead } = await handle.read(
+      buffer,
+      length,
+      buffer.length - length,
+      null,
+    );
+    if (!bytesRead) break;
+    length += bytesRead;
+  }
+  if (length > max) throw new ReportError("Bundle file exceeds limits.");
+  return buffer.subarray(0, length);
+}
+export async function verifyBundle(directory, { includeReport = false } = {}) {
   let manifest;
   try {
     const handle = await open(
       join(directory, "checksums.json"),
-      constants.O_RDONLY | constants.O_NOFOLLOW,
+      constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
     );
     try {
-      if ((await handle.stat()).size > 4096) throw new Error();
-      manifest = JSON.parse(await handle.readFile("utf8"));
+      manifest = JSON.parse(
+        (await boundedBytes(handle, 4096)).toString("utf8"),
+      );
     } finally {
       await handle.close();
     }
@@ -123,6 +147,19 @@ export async function verifyBundle(directory) {
     )
   )
     throw new ReportError("Invalid integrity manifest.");
+  const exported =
+    Object.hasOwn(manifest, "original-report.json") ||
+    Object.hasOwn(manifest, "REPRODUCE.md");
+  if (
+    Object.keys(manifest).length !== (exported ? 5 : 3) ||
+    (exported &&
+      !(
+        Object.hasOwn(manifest, "original-report.json") &&
+        Object.hasOwn(manifest, "REPRODUCE.md")
+      ))
+  )
+    throw new ReportError("Invalid or incomplete integrity manifest.");
+  let verifiedReport;
   for (const [name, hash] of Object.entries(manifest)) {
     if (
       basename(name) !== name ||
@@ -138,26 +175,35 @@ export async function verifyBundle(directory) {
       throw new ReportError("Invalid integrity manifest entry.");
     const handle = await open(
       join(directory, name),
-      constants.O_RDONLY | constants.O_NOFOLLOW,
+      constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
     );
     try {
-      const stat = await handle.stat();
-      if (!stat.isFile() || stat.size > 2097152)
-        throw new ReportError("Bundle file exceeds limits.");
-      if (
-        createHash("sha256")
-          .update(await handle.readFile())
-          .digest("hex") !== hash
-      )
+      const bytes = await boundedBytes(handle, 2097152);
+      if (createHash("sha256").update(bytes).digest("hex") !== hash)
         throw new ReportError("Bundle integrity verification failed.");
+      if (name === "report.json") {
+        try {
+          verifiedReport = validateReport(JSON.parse(bytes.toString("utf8")));
+        } catch {
+          throw new ReportError("Invalid report in verified bundle.");
+        }
+      }
     } finally {
       await handle.close();
     }
   }
-  await readReport(join(directory, "report.json"));
   return {
+    ...(includeReport ? { report: verifiedReport } : {}),
     verified: true,
     files: Object.keys(manifest).length,
     authentication: "Checksums verify integrity, not authorship.",
   };
+}
+
+export async function readVerifiedReport(path) {
+  if (basename(path) !== "report.json")
+    throw new ReportError(
+      "Comparison requires report.json with its sibling checksums.json and original bundle files.",
+    );
+  return (await verifyBundle(dirname(path), { includeReport: true })).report;
 }

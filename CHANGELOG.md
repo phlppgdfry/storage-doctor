@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0 — 2026-10-31
+
+2026-10-30 follow-up: fix decoded checkout paths for the integration helper; add a regression, negative/redaction consumer checks, artifact roundtrip example and independent reviewer packet. No runtime diagnostic or dependency change.
+
+- RC audit: comparison now verifies complete bundles automatically, requires declared live authentication context and rejects conflicting metadata/timestamps. Status-transition, selection, schema and tamper regression tests added.
+- Offline `compare` command detects PASS→FAIL while refusing mismatched builds, selections, fixture/live provenance and incomplete evidence. Strict healthy-baseline and cleanup requirements; unchanged report schema 2.
+- Installed `demo` command uses the same runner and explicit fixture provenance without credentials or checkout-only test files. Controlled corruption demonstrates the failure and comparison exit codes.
+- Optional Action baseline and concise status job summary, plus separate-consumer shell validation. The four-case hosted Action consumer verifies success, corruption, invalid setup, artifact retrieval and cleanup.
+- Fresh-cache package installation validation and corrected cache/offline documentation. Existing user modification to prefer-offline is preserved.
+- New regressions cover corruption, unavailable evidence, mismatched inputs, forged summaries and CLI JSON/exit behavior. Historical v0.2.0 evidence and draft are unchanged.
+
+Finalization: hosted Node 22/24, real Supabase and distributed Action gates; optional unique `artifact-name` for matrix/repeated Action calls; corrected the hosted checker’s missing await with a focused regression. No new storage assertions, runtime dependencies, AI, general shrinking, provider coverage or performance claims.
+
 ## 0.2.0 — 2026-10-28
 
 Hardening and developer-experience upgrade, validated locally and by Node 22/24 fast CI plus real Linux Supabase/Action integration. Remote release status is recorded in [release readiness](docs/release.md).
