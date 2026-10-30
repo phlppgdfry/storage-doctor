@@ -1,6 +1,6 @@
 # Copy into a separate consumer's .github/workflows/storage-doctor.yml.
 # Supply an approved, pushed 40-character commit SHA when dispatching.
-# This candidate has not been pushed: do not substitute a fictitious v0.3.0 tag.
+# Use the reviewed v0.3.0 release commit; verify its tag/source mapping first.
 name: Storage Doctor consumer
 on:
   workflow_dispatch:

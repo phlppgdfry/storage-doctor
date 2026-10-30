@@ -1,40 +1,17 @@
-# Current state — v0.3.0 discovery
+# Storage Doctor 0.3.0
 
-2026-10-29; baseline `d0054a8`, tag `v0.2.0`. The only pre-existing working-tree change was `scripts/package-smoke.js` switching offline installation to prefer-offline; preserved. Development branch: `work/v0.3.0-regression-evidence`.
+Status: **RELEASE FINALIZATION — publication pending**. Switch to STABLE — MAINTENANCE MODE only after the public release and downloaded assets are verified.
 
-- Verified baseline: `npm run verify` on Node 24.21.0 passes formatting, syntax, documentation links, 22 tests and ten fixture scenarios. The sandbox first blocked loopback listeners; the authorized host rerun passed.
-- GitHub read-only inspection: v0.2.0 remains a draft with two assets; no open issues/PRs. Actions enabled, all actions allowed, repository-wide SHA pinning not required. No administration or release changes made.
-- Source since v0.2.0: no committed changes. Historical live Linux integration and Action results remain in docs/validation.md; they are not fresh candidate evidence.
-- Verified architecture: bounded local REST/S3/TUS scenarios, direct transport, exact owned cleanup, validated schema 1/2 imports, exclusive report outputs and checksum verification. Existing protocol assertions are retained.
-- Technical limitation: exported replay recipes already preserve seeds, but reports cannot currently serve as an automated behavioral regression gate. A green historical report is easy to compare incorrectly with a partial, fixture, or differently configured run.
-- Confirmed onboarding limitation: the packed binary has no demo command. The documented checkout demo imports test-only files. README calls the consumer smoke offline despite the pre-existing prefer-offline modification.
-- Product limitation: no independent user feedback, production/RLS evidence, universal S3 compliance or validated adaptive strategy. Existing planner is a fixed retest heuristic. AI and generalized shrinking have no confirmed use case.
-- Highest-value scope: conservative offline report comparison for CI, a packaged explicitly labelled fixture demo, consumer smoke coverage, and concise Action summaries. Keep schema 2 and the same diagnostic engine. No new runtime dependencies or research-mode branding.
+Storage Doctor is a bounded local object-storage diagnostic CLI for Supabase REST/S3/TUS. It checks exact bytes and state visibility, writes offline evidence, verifies bundles and compares compatible runs without treating missing assurance as success. No cloud scanning, production/RLS certification or universal S3 compliance is claimed.
 
-Execution evidence and final gates: [validation](docs/validation.md), [release](docs/release.md). Priorities and alternatives: [product validation](docs/product-validation.md).
+Implemented: ten fixed scenarios and packs, deterministic payloads, strict local transport/resource ownership and budgets, JSON/Markdown/HTML reports, checksum verification/export, configuration doctor, installed fixture demo, conservative regression comparison and a composite GitHub Action with an optional unique artifact name. The planner remains a fixed heuristic. No AI key or telemetry.
 
-## Concise progress log
+Verified engineering evidence: Node 22/24 suites (33 tests), real local and hosted Supabase checks, four isolated hosted Action consumer cases, artifact retrieval/verification and scoped security regressions. Exact final commit/run/artifact data belongs in the public release's VALIDATION.json; earlier executions and failures remain in [validation](docs/validation.md). The [release process](docs/release.md) defines mandatory gates.
 
-- DISCOVER/VERIFY: read source, docs, tests, Action and GitHub state; baseline 22/22, existing draft untouched.
-- PRIORITIZE: seven candidates scored in product-validation.md; selected conservative offline CI comparison plus packaged demo/summary.
-- IMPLEMENT/TEST: shared engine retained; 26 tests pass on explicit Node 22 and Node 24; clean package and separate Action shell consumer pass.
-- CHALLENGE/IMPROVE: reject incompatible/incomplete baselines, canonical budget comparison, preserve JSON usage errors, verify injected Action failure, isolate consumer SD_* env. No independent human reviewer claimed.
-- DOCUMENT: update existing docs, protocols, launch drafts, architecture, changelog and real v0.3.0 example; retain all historical evidence.
-- RELEASE GATE: local candidate prepared; hosted candidate CI, independent users and visual browser validation remain unverified. No push/publication performed.
+Install from the reviewed v0.3.0 GitHub archive/source tag, then follow [README](README.md). The [review packet](docs/review.md) supplies independent tasks and expected exits. npm publication is not part of this release. Demo corruption is a synthetic fixture fault, not a vendor defect.
 
-## Release engineering follow-up gap assessment
+Limitations: literal loopback only; no production tunnels; no complete S3/RLS/crash-recovery or performance certification. Checksums establish integrity, not authenticity. Auth context is user-declared. Hard process/host loss may leave disposable resources. Independent human usability and security review remain unperformed. Windows execution is unverified.
 
-- **HIGH — fixed:** CLI compare accepted schema-valid edits without checking sibling manifests. Now hashes the complete bundle and parses exact verified report bytes; altered/missing evidence cannot silently succeed.
-- **HIGH — fixed:** live comparisons omitted authentication context. A non-secret explicit matching declaration is now required; actual permission equivalence remains an operator precondition, not a claimed attestation.
-- **MEDIUM — fixed:** timestamp parsing accepted noncanonical dates and chronology; per-result/run fingerprints could conflict. Strict imports and focused negative tests now reject these.
-- **MEDIUM — fixed:** README's clone-main quickstart could imply unpublished candidate commands already existed on main. Candidate status and reviewed-checkout requirement are explicit; narrative now follows problem → solution → demo → real evidence → CI → limits.
-- **ALREADY SATISFIED:** exact owned cleanup, budget/cancellation handling, loopback transport/proxy isolation, strict import/output paths, fixture/live provenance, two Node versions, clean consumers, private reporting route, pinned third-party Actions and preserved history.
-- **BLOCKER for unconditional release:** current branch not pushed; hosted Node/service/Action checks cannot be claimed. Explicit owner push/public-PR approval is required.
-- **MEDIUM outstanding:** no independent human review or two external user sessions. Protocol exists; no outcomes are invented.
-- **LOW:** no public v0.3.0 tag, npm publication or provenance attestation. These are explicitly withheld rather than fabricated.
+After publication this project enters maintenance: security/confirmed-bug/dependency fixes are welcome; new features need real user evidence. No rewrite, permanent feature-development obligation or archived/read-only repository is intended. [Contributing](CONTRIBUTING.md), [security reporting](SECURITY.md), [conditional roadmap](docs/roadmap.md).
 
-Final follow-up execution: 31/31 tests on explicit Node 22.23.4 and Node 24.22.2, none skipped; true offline and fresh-cache consumers pass; two final-source real runs pass 10/10 each; actual approximately 45-second cast captured and source-matched. Added manifest-pair, FIFO and imported replay-data tests. Full history redacted secret scan passes. Current detailed evidence is the final RC2 section of docs/validation.md; publication remains gated on explicit approval.
-
-## 2026-10-30 revalidation
-
-Clean expected RC2 was confirmed; hosted main remains d0054a8 with no PR. P1 reproduced/fixed: percent-encoded checkout paths in the source integration helper. P2 completed: independent review packet, negative/redaction Action-consumer cases and a syntax-checked artifact retrieval/verification example. Both Node versions now pass 32 tests without skips; a new real local run passes 10/10 and compares successfully to the preserved RC2 snapshot. No runtime diagnostic source or dependency changed. Current release gate uses PASS / FAIL / NOT EXECUTED / NOT APPLICABLE and remains CONDITIONAL GO pending authorized publication and real external evidence.
+The historical discovery/candidate status is [preserved here](docs/history/current-state-before-v0.3.0.md). Release candidates, real snapshots, authentic recordings and v0.2.0 history remain intact.

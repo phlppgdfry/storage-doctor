@@ -2,7 +2,7 @@ import { execFileSync, execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { mkdtemp, writeFile, readFile, rm, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, posix } from "node:path";
 import assert from "node:assert/strict";
 import { startFixture, fixtureEnv } from "../test/fixture.js";
 const execute = promisify(execFile),
@@ -23,6 +23,23 @@ try {
   );
   const artifact = Array.isArray(packed) ? packed[0] : Object.values(packed)[0];
   assert.ok(artifact?.filename);
+  const packedPaths = new Set(artifact.files.map((file) => file.path));
+  for (const path of packedPaths) {
+    if (!path.endsWith(".md")) continue;
+    for (const [, target] of (await readFile(path, "utf8")).matchAll(
+      /\]\(([^)]+)\)/g,
+    )) {
+      if (/^(https?:|#|mailto:)/.test(target)) continue;
+      const destination = posix.normalize(
+        posix.join(posix.dirname(path), target.split("#")[0]),
+      );
+      assert.ok(
+        packedPaths.has(destination) ||
+          [...packedPaths].some((name) => name.startsWith(destination + "/")),
+        `Packaged documentation target missing: ${path} -> ${target}`,
+      );
+    }
+  }
   const consumer = join(directory, "consumer");
   await mkdir(consumer);
   const archive = join(directory, artifact.filename);

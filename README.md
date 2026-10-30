@@ -6,13 +6,17 @@ Storage Doctor runs ten bounded checks across **Supabase REST, S3 and TUS**, rec
 
 Independent, local-first and offline-reporting. No cloud targets, telemetry or AI key. Existing broad S3 suites and load generators solve different problems; [scope and alternatives](docs/product-validation.md).
 
-**Version status:** this is a **v0.3.0 candidate**. No v0.3.0 tag or npm package is published. Use this reviewed candidate checkout or its exact reviewed archive; the public default branch can still contain v0.2.0 until an approved merge. [Current release gates](docs/release.md) · [Independent review packet](docs/review.md).
+**Version: 0.3.0.** Use the reviewed [GitHub release archive and checksums](https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0) or the source tag. No npm registry package is published. [Release process and gates](docs/release.md) · [Independent review packet](docs/review.md).
+
+Developed with AI assistance; the protocol contracts, source, controlled failures and validation evidence are open to inspection.
 
 ## Try it safely
 
-From the candidate checkout, with **Node 22 or 24**:
+From the release source, with **Node 22 or 24**:
 
 ```sh
+git clone --branch v0.3.0 https://github.com/phlppgdfry/storage-doctor.git
+cd storage-doctor
 npm ci
 node src/cli.js demo
 ```
@@ -89,9 +93,9 @@ Each run writes validated JSON, Markdown, standalone HTML and SHA-256 checksums.
 
 ## Integrate into CI
 
-The composite [GitHub Action](action.yml) expects an already provisioned disposable loopback target and `SD_*` credentials. It runs checks, optionally compares a trusted baseline, writes a concise job summary and uploads evidence. It does not provision storage or authorize remote targets.
+The composite [GitHub Action](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/action.yml) expects an already provisioned disposable loopback target and `SD_*` credentials. It runs checks, optionally compares a trusted baseline, writes a concise job summary and uploads evidence. It does not provision storage or authorize remote targets.
 
-Use the [separate-consumer workflow](examples/consumer-workflow.yml) with an **actual reviewed 40-character commit SHA** after authorized publication. No fictitious v0.3.0 reference is provided. The existing v0.2.0 tag predates the baseline/summary additions. Local shell-consumer tests and hosted GitHub execution are separate evidence; see [current gates](docs/release.md).
+Use the [separate-consumer workflow](examples/consumer-workflow.yml) with an **actual reviewed 40-character commit SHA** after authorized publication. The v0.3.0 Action includes the baseline and summary additions. Pin a reviewed commit in your workflow, and set `artifact-name` to a unique value for matrix jobs or repeated calls. The four-case [hosted consumer workflow](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/.github/workflows/consumer.yml) checks actual success/failure/setup behavior and artifact upload/download/verification. See [validation](docs/validation.md).
 
 ```sh
 npm run verify
@@ -113,4 +117,4 @@ The normal smoke uses the locked graph and `--prefer-offline`; it may contact np
 - Matching declared inputs does not establish identical permissions, dependencies, topology or configuration. No production/RLS certification, universal S3 compliance, benchmark, upstream endorsement or market validation is claimed.
 - AI, automatic shrinking, adaptive research and additional providers remain deferred. `plan` is a fixed retest heuristic, not self-improvement.
 
-[Security/private reporting](SECURITY.md) · [Architecture](docs/architecture.md) · [Changelog](CHANGELOG.md) · [Release process](docs/release.md) · [Roadmap](docs/roadmap.md). MIT licensed.
+[Security/private reporting](SECURITY.md) · [Architecture](docs/architecture.md) · [Changelog](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/CHANGELOG.md) · [Release process](docs/release.md) · [Roadmap](docs/roadmap.md). MIT licensed.

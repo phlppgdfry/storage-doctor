@@ -1,6 +1,6 @@
 # Independent review packet
 
-Storage Doctor checks exact bytes and visible state across local Supabase REST/S3/TUS, retains bounded evidence, and compares compatible runs. This candidate is not published, production-certified, universally S3-compliant or market-validated. Hosted current-branch results and external user sessions are still outstanding. [Current gates](release.md).
+Storage Doctor checks exact bytes and visible state across local Supabase REST/S3/TUS, retains bounded evidence, and compares compatible runs. This packet applies to version 0.3.0. It does not establish production certification, universal S3 compliance or market validation. Actual hosted runs are recorded in validation; external user sessions remain unperformed. [Current gates](release.md).
 
 ## What the reviewer needs
 
@@ -43,7 +43,7 @@ From the reviewed checkout run `npm ci`, `npm run verify`, `npm run package:offl
 
 Only after explicitly provisioning your own disposable local target, follow [configuration](configuration.md) and the README's integration recipe. The helper uses privileged local service credentials and fresh private buckets; it does not certify end-user RLS. Live comparison requires a matching declared non-secret auth context. Labels do not attest effective permission equality. Never use production, a remote endpoint or a loopback production tunnel.
 
-For GitHub review use the [separate consumer workflow](../examples/consumer-workflow.yml) with an actual authorized, published 40-character commit SHA. It checks out the distributed Action into its own path, provisions only its disposable stack, retrieves this workflow run's named artifact and verifies it. `actions: read` supports that read-only download. Current local shell-consumer checks cover success, corruption, unknown packs, missing credentials and output redaction. Hosted upload/download/cancellation behavior remains NOT EXECUTED until the branch and workflow are authorized and run.
+For GitHub review use the [separate consumer workflow](../examples/consumer-workflow.yml) with an actual authorized, published 40-character commit SHA. It checks out the distributed Action into its own path, provisions only its disposable stack, retrieves this workflow run's named artifact and verifies it. `actions: read` supports that read-only download. Current local shell-consumer checks cover success, corruption, unknown packs, missing credentials and output redaction. The four-case hosted consumer gate validates uploads, downloads, integrity, setup errors and cleanup. Forced runner termination/crash recovery is not certified; do not treat successful cleanup as a guarantee after host loss.
 
 ## Questions and feedback
 
