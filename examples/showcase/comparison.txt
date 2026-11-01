@@ -1,0 +1,13 @@
+REGRESSION (fixture)
+
+s3-roundtrip: passed → failed
+s3-empty: passed → failed
+s3-path: passed → failed
+s3-range: passed → failed
+s3-metadata: passed → failed
+rest-to-s3: passed → failed
+s3-to-rest: passed → failed
+rest-overwrite-s3: passed → failed
+tus-resume-cross: passed → failed
+Inspect both reports, verify bundle integrity, and reproduce changed checks with the recorded seed before claiming a defect.
+Exit: 1

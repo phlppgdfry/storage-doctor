@@ -1,0 +1,600 @@
+{
+  "schemaVersion": 2,
+  "toolVersion": "0.3.0",
+  "sourceFingerprint": "88778a934fef9f49f963aed831eee66cc05d4545f784999220b8edf5d7ed2735",
+  "runId": "589a566a-6caf-4c31-b34f-529b3cd01fbd",
+  "mode": "fixture",
+  "startedAt": "2026-11-01T22:48:55.295Z",
+  "finishedAt": "2026-11-01T22:48:55.393Z",
+  "nodeVersion": "v24.22.2",
+  "platform": "darwin/arm64",
+  "config": {
+    "authContext": "synthetic-fixture",
+    "profile": "supabase",
+    "bucket": "storage-doctor-test",
+    "seed": "storage-doctor-v1",
+    "targetVersion": "protocol-fixture-v1",
+    "timeoutMs": 5000,
+    "region": "us-east-1",
+    "restUrl": "http://127.0.0.1:51193",
+    "s3Url": "http://127.0.0.1:51193/s3",
+    "tusUrl": "http://127.0.0.1:51193/upload/resumable"
+  },
+  "budget": {
+    "maxScenarios": 10,
+    "maxRequests": 80,
+    "explorationDeadlineMs": 120000,
+    "maxResponseBytes": 8388608,
+    "cleanupDeadlineMs": 30000
+  },
+  "payloadSha256": "4c822de1f455a5133fc8ab404ac2ac25aecb541ce4c7a4d3c51e2cd337604280",
+  "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26",
+  "results": [
+    {
+      "id": "s3-roundtrip",
+      "title": "S3 byte-exact roundtrip",
+      "description": "S3 byte-exact roundtrip. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "The bytes read match the bytes written through the selected protocol(s).",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 22,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 17
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 4
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 2
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "s3-roundtrip"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "s3-empty",
+      "title": "Zero-byte object",
+      "description": "Zero-byte object. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "The bytes read match the bytes written through the selected protocol(s).",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 3,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 2
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "s3-empty"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "s3-path",
+      "title": "Allowed spaces and URL-sensitive characters in keys",
+      "description": "Allowed spaces and URL-sensitive characters in keys. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "The bytes read match the bytes written through the selected protocol(s).",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 3,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "s3-path"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "s3-range",
+      "title": "S3 partial read",
+      "description": "S3 partial read. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "The requested byte slice, status 206 and Content-Range agree.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 3,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 2
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 206,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "s3-range"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "s3-metadata",
+      "title": "Content type and user metadata roundtrip",
+      "description": "Content type and user metadata roundtrip. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "HEAD returns the written content type, user metadata and byte length.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 3,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 2
+        },
+        {
+          "protocol": "s3",
+          "operation": "HeadObjectCommand",
+          "status": 200,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "s3-metadata"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "rest-to-s3",
+      "title": "REST upload visible through S3",
+      "description": "REST upload visible through S3. Uses only disposable run-owned objects.",
+      "protocols": [
+        "rest",
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "The bytes read match the bytes written through the selected protocol(s).",
+      "reference": "https://supabase.com/docs/guides/storage/s3/compatibility",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 2,
+      "trace": [
+        {
+          "protocol": "rest",
+          "operation": "POST",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "rest-to-s3"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "s3-to-rest",
+      "title": "S3 upload visible through REST",
+      "description": "S3 upload visible through REST. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3",
+        "rest"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "The bytes read match the bytes written through the selected protocol(s).",
+      "reference": "https://supabase.com/docs/guides/storage/s3/compatibility",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 2,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 200,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "s3-to-rest"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "rest-overwrite-s3",
+      "title": "REST overwrite visible through S3",
+      "description": "REST overwrite visible through S3. Uses only disposable run-owned objects.",
+      "protocols": [
+        "rest",
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "The bytes read match the bytes written through the selected protocol(s).",
+      "reference": "https://supabase.com/docs/guides/storage/s3/compatibility",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 3,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "rest",
+          "operation": "POST",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "rest-overwrite-s3"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "s3-delete-rest",
+      "title": "S3 deletion visible through REST",
+      "description": "S3 deletion visible through REST. Uses only disposable run-owned objects.",
+      "protocols": [
+        "s3",
+        "rest"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "A previously readable object is absent after S3 deletion.",
+      "reference": "https://supabase.com/docs/guides/storage/s3/compatibility",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 3,
+      "trace": [
+        {
+          "protocol": "s3",
+          "operation": "PutObjectCommand",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "s3",
+          "operation": "DeleteObjectCommand",
+          "status": 204,
+          "ms": 1
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 400,
+          "ms": 1
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 1
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "s3-delete-rest"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    },
+    {
+      "id": "tus-resume-cross",
+      "title": "TUS offset resume then REST/S3 byte verification",
+      "description": "TUS offset resume then REST/S3 byte verification. Uses only disposable run-owned objects.",
+      "protocols": [
+        "tus",
+        "rest",
+        "s3"
+      ],
+      "prerequisites": [
+        "Dedicated local bucket",
+        "Valid credentials for the selected protocols"
+      ],
+      "expected": "TUS preserves offsets and publishes identical completed bytes through REST and S3.",
+      "reference": "https://supabase.com/docs/guides/storage/s3/compatibility",
+      "status": "passed",
+      "reason": "All scenario assertions passed.",
+      "reasonCode": "assertions",
+      "ms": 39,
+      "trace": [
+        {
+          "protocol": "tus",
+          "operation": "POST",
+          "status": 201,
+          "ms": 1
+        },
+        {
+          "protocol": "tus",
+          "operation": "HEAD",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "tus",
+          "operation": "PATCH",
+          "status": 204,
+          "ms": 7
+        },
+        {
+          "protocol": "tus",
+          "operation": "HEAD",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "tus",
+          "operation": "PATCH",
+          "status": 409,
+          "ms": 1
+        },
+        {
+          "protocol": "tus",
+          "operation": "HEAD",
+          "status": 200,
+          "ms": 1
+        },
+        {
+          "protocol": "tus",
+          "operation": "PATCH",
+          "status": 204,
+          "ms": 4
+        },
+        {
+          "protocol": "s3",
+          "operation": "GetObjectCommand",
+          "status": 200,
+          "ms": 12
+        },
+        {
+          "protocol": "rest",
+          "operation": "GET",
+          "status": 200,
+          "ms": 7
+        }
+      ],
+      "cleanup": {
+        "status": "passed",
+        "warnings": [],
+        "trace": [
+          {
+            "protocol": "s3",
+            "operation": "DeleteObjectCommand",
+            "status": 204,
+            "ms": 2
+          }
+        ]
+      },
+      "reproduction": {
+        "seed": "storage-doctor-v1",
+        "scenario": "tus-resume-cross"
+      },
+      "environmentFingerprint": "0f53ca5d405c52238b69fd4b62864398e425873841c83e6bd07ef5654b5caf26"
+    }
+  ],
+  "cleanupWarnings": [],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "unsupported": 0,
+    "skipped": 0,
+    "inconclusive": 0,
+    "error": 0
+  },
+  "exitCode": 0
+}
