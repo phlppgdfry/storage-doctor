@@ -42,3 +42,22 @@ Endpoint validation rejects DNS names, URL credentials/fragments, unsupported sc
 - **Schema error:** imports are capped at 2 MiB, reject unknown fields and recognizable credential material. Keep the source file privately; do not weaken validation to export it.
 
 For example, `SD_AUTH_CONTEXT=local-service-role` describes the supplied privileged local setup; an end-user RLS setup needs its own label. This is a declaration, not a test of authorization equivalence. Never use a credential, credential hash, user identifier or bearer token as the label. `check` and `doctor` still accept omitted context as `unrecorded`; live `compare` refuses it. Independently verify that the same policy applies to both runs.
+
+## Compare two real local runs
+
+Run from the released source checkout. The fixture quickstart needs none of these services.
+
+The supplied disposable stack requires Docker and **Supabase CLI 2.122.0**:
+
+```sh
+supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+npm run integration
+# Keep the first printed report directory as BASELINE.
+# Apply the intended change to this disposable local target, or repeat unchanged.
+npm run integration
+# Keep the second printed report directory as CURRENT.
+node src/cli.js compare --baseline BASELINE/report.json --report CURRENT/report.json --json
+supabase stop
+```
+
+Replace `BASELINE` and `CURRENT` with the actual printed paths. The helper reads credentials in memory, creates a unique private bucket, executes the checks, removes its exact objects and deletes only that bucket. It uses ports **55431/55432** and a declared `local-service-role` authentication context. A failed bucket deletion never triggers bucket-wide emptying. No target-change automation is implied.

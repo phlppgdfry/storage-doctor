@@ -1,25 +1,6 @@
 # Architecture and contracts
 
-```text
-CLI / environment
-       |
-       v
-Loopback-only validated configuration
-       |
-       v
-Bounded sequential runner ---- fixed scenario assertions
-       |
-       +---- AWS SDK / SigV4 ---- S3 endpoint
-       +---- direct HTTP/S ------ REST endpoint
-       +---- direct HTTP/S ------ TUS endpoint
-       |
-       v
-Allowlisted request observations + cleanup outcomes
-       |
-       +---- JSON / Markdown / offline HTML / checksums
-       +---- export (evidence + replay recipe)
-       +---- plan (one deterministic retest recommendation)
-```
+The [architecture diagram in the README](../README.md#architecture) summarizes the execution and evidence paths. The module contracts below describe their trust boundaries.
 
 No daemon, database, model provider, remote report collector or agent framework. Payloads are deterministic from a validated seed, namespaces are random per run. A repeat uses identical bytes and fresh object identities. It does not replay a timing schedule.
 

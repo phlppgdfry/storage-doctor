@@ -59,9 +59,11 @@ The engineering lesson is that an oracle needs as much scrutiny as the system un
 
 ## Career summary grounded in evidence
 
-**GitHub description:** Local-first object-storage diagnostics with cross-protocol byte checks, bounded test execution and reviewable evidence reports.
+**Suggested owner profile description:** AI-assisted open-source developer tooling: local storage diagnostics, conservative regression gates and reproducible evidence. Explore the source, tests and release validation.
 
-**CV project entry:** Built an independent Node.js diagnostic CLI for local Supabase Storage, exercising REST/S3/TUS interoperability and binary integrity. Designed deterministic scenarios, report/export workflows and controlled-failure tests. Investigated a false-positive protocol assumption and documented the correction. State the current verified test results and links when applying; do not imply production adoption or maintainer approval.
+**CV-ready project entry:** Storage Doctor — AI-assisted Node.js open-source diagnostic CLI for disposable local Supabase Storage. The project implements REST/S3/TUS byte-integrity checks, conservative offline regression comparison, bounded resource cleanup and checksum-verifiable reports. The v0.3.0 release includes hosted Node 22/24 validation, real local-engine integration and four hosted Action consumer cases. [Verified release](https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0).
+
+These descriptions summarize inspectable project work, not independent proof of personal expertise. In applications or interviews, distinguish AI-assisted implementation from the design decisions, code review, experiments and fixes you can personally explain. Do not imply production adoption, employment experience, a wholly manual implementation or maintainer endorsement. Neither profile nor CV has been modified automatically.
 
 The tool and Storage Engineering Lab have different roles: this project demonstrates developer-product design and test-harness engineering; the research lab records a separate upstream investigation. Do not attribute that lab's contribution to this repository.
 

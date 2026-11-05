@@ -1,0 +1,31 @@
+{
+  "capturedOn": "2026-11-01",
+  "browser": "Chrome 156.0.8078.74",
+  "node": "v24.22.2",
+  "engineSourceCommit": "d8be992eff8ae64c3514bdeac43a8735ed09266b",
+  "sourceFingerprint": "88778a934fef9f49f963aed831eee66cc05d4545f784999220b8edf5d7ed2735",
+  "fixtureMode": "fixture",
+  "syntheticCorruption": true,
+  "viewports": {
+    "realReport": {
+      "width": 1120,
+      "height": 870
+    },
+    "fixtureDetail": {
+      "width": 1120,
+      "height": 900
+    }
+  },
+  "changesToPage": "Viewport and native details expansion only; no content/style edits or masks",
+  "digests": {
+    "examples/v0.3.0-rc2/report.html": "3cfed0830db83f06c15118a92de7cc0e4704f7d3691eed9317df3344308e4f73",
+    "examples/v0.3.0-rc2/report.json": "222d10bcc3d71a12b8ae88e5236ec97db1c04db66833f49bcc0a4de00aecf396",
+    "examples/showcase/images/local-supabase-report.png": "c6a88dac51e18fce6eb47a6434bcf649814334a6bb057bec132127ab54f5a433",
+    "examples/showcase/images/injected-regression-detail.png": "5a1b9ea6970f011491101bdad0a18d3a0b564a7cf8208d2901330258de273b53",
+    "examples/showcase/fixture-baseline/report.json": "f127c4b7c2797f57e3284f7ee96526b690f65ba96587bdcde7bed21bb8e96cbd",
+    "examples/showcase/fixture-candidate/report.json": "121bd815028aeaf2a741e8dbaa78cd3d9a75134333c71d5887df690d6f564897",
+    "examples/showcase/comparison.json": "ad6f39856dea2760d70eca3a43bff1a85551d4a10c6f7e0c026cb821092a7c79",
+    "examples/showcase/comparison.txt": "6cde2c692d79e46ce9ffc200c516ee4448d72b3b0c382119cf0e3743bae394b5"
+  },
+  "trustBoundary": "Hashes establish integrity, not authorship. The real report and synthetic fixture are separate runs."
+}

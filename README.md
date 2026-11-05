@@ -1,14 +1,26 @@
 # Storage Doctor
 
-**Did a local storage change break the bytes—or just your test setup?**
+**Detect storage regressions. Verify the evidence. Reproduce the failure.**
 
-Storage Doctor runs ten bounded checks across **Supabase REST, S3 and TUS**, records exact-byte assertions and cleanup outcomes, and compares two runs without turning missing evidence into a green result. Use it to investigate a local integration or check a storage upgrade before considering production changes.
+A local-first diagnostic CLI for developers investigating **Supabase REST, S3 and TUS**. Run ten bounded checks, compare compatible runs and keep evidence another engineer can inspect.
 
-Independent, local-first and offline-reporting. No cloud targets, telemetry or AI key. Existing broad S3 suites and load generators solve different problems; [scope and alternatives](docs/product-validation.md).
+[![Release v0.3.0](https://img.shields.io/badge/release-v0.3.0-18745a)](https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0) [![Validation](https://github.com/phlppgdfry/storage-doctor/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/phlppgdfry/storage-doctor/actions/workflows/verify.yml) [![Node 22 and 24](https://img.shields.io/badge/Node.js-22%20%7C%2024-18745a)](https://github.com/phlppgdfry/storage-doctor/actions/runs/41170073817) [![MIT license](https://img.shields.io/badge/license-MIT-58636b)](LICENSE)
 
-**Version: 0.3.0.** Use the reviewed [GitHub release archive and checksums](https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0) or the source tag. No npm registry package is published. [Release process and gates](docs/release.md) · [Independent review packet](docs/review.md).
+[Try it safely](#try-it-safely) · [See a regression](#see-a-regression-and-reproduce-it) · [Validation](#verified-release-evidence) · [Architecture](#architecture) · [Review packet](docs/review.md)
 
-Developed with AI assistance; the protocol contracts, source, controlled failures and validation evidence are open to inspection.
+[![Actual Storage Doctor HTML report: ten checks passed against a disposable local Supabase instance, with environment and scenario results visible.](examples/showcase/images/local-supabase-report.png)](examples/v0.3.0-rc2/report.md)
+
+_Actual local Supabase run recorded on 2026-10-29. Ten passing checks describe this run, not universal compatibility. [Screenshot provenance and accessible text](examples/showcase/README.md)._
+
+## Why it exists
+
+An upload can succeed through one interface while a read, overwrite or deletion through another disagrees. An HTTP success alone does not prove that the bytes or visible state are correct. Storage Doctor records expected versus observed behavior, request operations and cleanup outcomes so you can investigate a local change with inspectable evidence.
+
+1. **Run** fixed byte-integrity and state-visibility checks on a disposable loopback target—or try the credential-free fixture.
+2. **Compare** a healthy baseline with a compatible candidate. Missing assurance and invalid evidence cannot become a green result.
+3. **Investigate** changed checks, export a focused reproduction recipe and verify the bundle before sharing it. A regression classification is not proof of root cause.
+
+Independent and developed with AI assistance. No cloud targets, telemetry or AI key. **v0.3.0 is released and in maintenance mode.** [Scope and alternatives](docs/product-validation.md) · [Engineering case study](docs/launch.md#case-study-when-the-test-was-wrong).
 
 ## Try it safely
 
@@ -39,24 +51,17 @@ node src/cli.js verify --report reports/reproduction
 
 The same validated engine generates both fixture runs. Comparison verifies the complete checksum bundles before classifying PASS→FAIL. Export retains expected/observed behavior, traces, seed and a reproduction recipe. Repeat the first three commands with new directories to reproduce the injected failure. A fixture disagreement is not a newly discovered storage defect.
 
-For a genuine timed terminal capture, run `npm run demo:record` from the checkout. It executes these commands, checks actual exits and retains a roughly 45-second `.cast`, transcript and original evidence under a new `reports/showcase-*` directory. No screenshots or fictional output are generated. [Actual recording](examples/showcase/regression.cast) · [Readable transcript](examples/showcase/transcript.txt) · [Capture metadata](examples/showcase/recording.json).
+**Baseline → injected failure → verified evidence.** The [captured baseline](examples/showcase/fixture-baseline/report.md) passed 10/10 checks; the [intentionally corrupted fixture](examples/showcase/fixture-candidate/report.md) failed nine. The [actual comparison output](examples/showcase/comparison.txt) classifies nine PASS→FAIL transitions and exits 1. Both bundles remain available for offline verification.
+
+![Actual failure detail from the intentionally corrupted fixture: REST upload visible through S3 failed byte equality despite HTTP 200; cleanup passed. This is not a Supabase defect.](examples/showcase/images/injected-regression-detail.png)
+
+_Intentional fixture corruption, not a vendor defect. The screenshot's generic `check --local` replay line needs a separately provisioned target; reproduce this fixture with the `demo --inject-corruption` command above. [Capture provenance and exact commands](examples/showcase/README.md)._
+
+For the existing ~45-second genuine terminal recording: [capture](examples/showcase/regression.cast) · [text transcript](examples/showcase/transcript.txt) · [metadata](examples/showcase/recording.json). Run `npm run demo:record` to create a fresh recording and original evidence; command output is captured, not invented.
 
 ## Compare two real local runs
 
-The supplied disposable stack requires Docker and **Supabase CLI 2.122.0**:
-
-```sh
-supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
-npm run integration
-# Keep the first printed report directory as BASELINE.
-# Apply the intended change to this disposable local target, or repeat unchanged.
-npm run integration
-# Keep the second printed report directory as CURRENT.
-node src/cli.js compare --baseline BASELINE/report.json --report CURRENT/report.json --json
-supabase stop
-```
-
-Replace `BASELINE` and `CURRENT` with the actual printed paths. The helper reads credentials in memory, creates a unique private bucket, executes the checks, removes its exact objects and deletes only that bucket. It uses ports **55431/55432** and a declared `local-service-role` authentication context. A failed bucket deletion never triggers bucket-wide emptying. No target-change automation is implied.
+Use the [real local integration recipe](docs/configuration.md#compare-two-real-local-runs) for Docker, Supabase CLI 2.122.0 and two independently retained runs. It provisions a unique private bucket, obtains local credentials in memory and removes only its owned resources. This is separate from the fixture demo above.
 
 For your own disposable target, start with [the environment example](examples/local.env.example), provision a dedicated `sd-*` or `storage-doctor-*` bucket, then run:
 
@@ -95,17 +100,44 @@ Each run writes validated JSON, Markdown, standalone HTML and SHA-256 checksums.
 
 The composite [GitHub Action](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/action.yml) expects an already provisioned disposable loopback target and `SD_*` credentials. It runs checks, optionally compares a trusted baseline, writes a concise job summary and uploads evidence. It does not provision storage or authorize remote targets.
 
-Use the [separate-consumer workflow](examples/consumer-workflow.yml) with an **actual reviewed 40-character commit SHA** after authorized publication. The v0.3.0 Action includes the baseline and summary additions. Pin a reviewed commit in your workflow, and set `artifact-name` to a unique value for matrix jobs or repeated calls. The four-case [hosted consumer workflow](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/.github/workflows/consumer.yml) checks actual success/failure/setup behavior and artifact upload/download/verification. See [validation](docs/validation.md).
+Use the [separate-consumer workflow](examples/consumer-workflow.yml) with an **actual reviewed 40-character commit SHA** from the released tag. The v0.3.0 Action includes the baseline and summary additions. Pin a reviewed commit in your workflow, and set `artifact-name` to a unique value for matrix jobs or repeated calls. The four-case [hosted consumer workflow](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/.github/workflows/consumer.yml) checks actual success/failure/setup behavior and artifact upload/download/verification. See [validation](docs/validation.md).
 
-```sh
-npm run verify
-npm run package:smoke
-npm run package:offline # Empty consumer; prewarmed dependency cache, no npm network
-npm run package:fresh   # Empty private cache; registry access required
-npm run action:smoke
+A step in an existing job with Node 22/24 and a provisioned disposable target:
+
+```yaml
+- uses: phlppgdfry/storage-doctor@d8be992eff8ae64c3514bdeac43a8735ed09266b # v0.3.0
+  with:
+    pack: core
+    artifact-name: storage-doctor-core
+  # Supply SD_* credentials via the job environment; never paste them here.
 ```
 
-The normal smoke uses the locked graph and `--prefer-offline`; it may contact npm. [Contributing](CONTRIBUTING.md) explains how to add a focused, source-backed diagnostic without contacting the author.
+## Architecture
+
+```mermaid
+flowchart TB
+  action[GitHub Action] --> cli[CLI]
+  cli --> config[Loopback configuration]
+  config --> runner[Bounded diagnostic runner]
+  runner --> protocols[REST / S3 / TUS]
+  runner --> reports[JSON / Markdown / HTML + checksums]
+  reports --> verify[Integrity + schema verification]
+  verify --> compare[Compatible-run comparison]
+  reports --> export[Focused export + reproduction recipe]
+```
+
+The Action invokes the same CLI. The runner uses direct HTTP/S for REST/TUS and AWS SDK signing for S3. Reports are local files; comparison is offline. There is no daemon, hosted collector or model provider. [Module boundaries and protocol contracts](docs/architecture.md).
+
+## Verified release evidence
+
+| Evidence on the exact v0.3.0 release commit                                                                | Recorded result                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| [Node 22 / 24 CI](https://github.com/phlppgdfry/storage-doctor/actions/runs/41145223787)                   | 33 tests per version; formatting, syntax, docs, package and local Action smoke                                    |
+| [Real disposable Supabase + Action](https://github.com/phlppgdfry/storage-doctor/actions/runs/41168269115) | 10/10 diagnostics; Action core 3/3                                                                                |
+| [Hosted Action consumer](https://github.com/phlppgdfry/storage-doctor/actions/runs/41145223764)            | Four synthetic cases: success, corruption, invalid pack, missing credentials; artifact retrieval and verification |
+| [Release assets](https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0)                         | Package, permanent evidence ZIP, checksums and exact-commit `VALIDATION.json`                                     |
+
+These are recorded executions, not third-party certification. Independent human usability and security review remain unperformed. [Full validation history, including failures and fixes](docs/validation.md) · [Review tasks](docs/review.md).
 
 ## Limits and safety
 
@@ -117,4 +149,15 @@ The normal smoke uses the locked graph and `--prefer-offline`; it may contact np
 - Matching declared inputs does not establish identical permissions, dependencies, topology or configuration. No production/RLS certification, universal S3 compliance, benchmark, upstream endorsement or market validation is claimed.
 - AI, automatic shrinking, adaptive research and additional providers remain deferred. `plan` is a fixed retest heuristic, not self-improvement.
 
-[Security/private reporting](SECURITY.md) · [Architecture](docs/architecture.md) · [Changelog](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/CHANGELOG.md) · [Release process](docs/release.md) · [Roadmap](docs/roadmap.md). MIT licensed.
+## Documentation
+
+| Task                                       | Start here                                                                                                                                                                                                                                      |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Install a reviewed release package         | [Independent installation and review](docs/review.md#install-and-execute-the-package)                                                                                                                                                           |
+| Configure or troubleshoot a local target   | [Configuration and permissions](docs/configuration.md)                                                                                                                                                                                          |
+| Interpret statuses, schemas and comparison | [Report contracts](docs/report-format.md)                                                                                                                                                                                                       |
+| Understand design decisions                | [Architecture](docs/architecture.md) · [Case study and tradeoffs](docs/launch.md#case-study-when-the-test-was-wrong)                                                                                                                            |
+| Contribute a focused fix                   | [Contributing](CONTRIBUTING.md) · [Security/private reporting](SECURITY.md)                                                                                                                                                                     |
+| Inspect release and maintenance policy     | [Release process](docs/release.md) · [Current state](https://github.com/phlppgdfry/storage-doctor/blob/main/CURRENT_STATE.md) · [Changelog](https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/CHANGELOG.md) · [Roadmap](docs/roadmap.md) |
+
+[MIT licensed](LICENSE). No npm registry package is published by this project; do not assume `npx storage-doctor` refers to it.
