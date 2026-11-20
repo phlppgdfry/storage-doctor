@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Storage Doctor — detect storage regressions, verify the evidence, reproduce the failure</title>
+<meta name="description" content="A local-first diagnostic CLI for Supabase REST, S3 and TUS: ten bounded byte-integrity and visibility checks, run comparison and verifiable reproduction bundles. Watch a recorded regression and open real reports.">
+<link rel="canonical" href="https://phlppgdfry.github.io/storage-doctor/">
+<meta property="og:type" content="website"><meta property="og:title" content="Storage Doctor — detect storage regressions, verify the evidence, reproduce the failure"><meta property="og:description" content="A local-first diagnostic CLI for Supabase REST, S3 and TUS: ten bounded byte-integrity and visibility checks, run comparison and verifiable reproduction bundles. Watch a recorded regression and open real reports.">
+<meta property="og:url" content="https://phlppgdfry.github.io/storage-doctor/"><meta property="og:image" content="https://phlppgdfry.github.io/storage-doctor/og.jpg"><meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0d12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233ecf8e'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/showcase.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.2/dist/bundle/asciinema-player.css">
+<style>:root{--brand:#3ecf8e;--accent-ink:#03140c}
+.sd-player{border-radius:12px;overflow:hidden;border:1px solid var(--line2);background:#272822}
+.sd-reports{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+@media (max-width:760px){.sd-reports{grid-template-columns:1fr}}
+.sd-rep{display:flex;flex-direction:column;gap:6px;text-decoration:none;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px}
+.sd-rep:hover{border-color:var(--accent)}
+.sd-rep small{color:var(--muted)}
+.sd-rep .pill{align-self:flex-start}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <a class="brand" href="#"><i class="dot"></i><span>Storage Doctor</span></a>
+  <nav><a class="" href="#demo">Try it</a><a class="" href="#how">How it works</a><a class="hide-sm" href="#screens">Screens</a><a class="hide-sm" href="#run">Run it</a><a href="https://github.com/phlppgdfry/storage-doctor" aria-label="GitHub repository">GitHub</a><button class="theme" type="button" aria-label="Toggle light or dark theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></nav>
+</div></div>
+<main>
+<header class="hero"><div class="wrap grid">
+  <div>
+    <div class="kicker"><span>Node.js CLI · Supabase · S3 · TUS</span><span class="chip status">Released v0.3.0</span></div>
+    <h1>HTTP 200 is not proof <em>the bytes are right</em>.</h1>
+    <p class="lede">An upload can succeed through one interface while a read through another returns different bytes. Storage Doctor runs ten fixed checks across Supabase REST, S3 and TUS on a disposable target, compares a run against a healthy baseline, and exports a focused, checksummed reproduction another engineer can verify.</p>
+    <div class="ctas"><a class="btn primary" href="#demo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Watch the recording</a><a class="btn" href="https://github.com/phlppgdfry/storage-doctor"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg> Source on GitHub</a></div>
+    <div class="stack"><span class="chip">Node.js 22/24</span><span class="chip">Supabase Storage</span><span class="chip">S3</span><span class="chip">TUS</span><span class="chip">GitHub Action</span><span class="chip">node:test</span><span class="chip">zero telemetry</span></div>
+  </div>
+  <div class="hero-visual"><div class="frame"><img src="img/examples-showcase-images-local-supabase-report.webp" alt="Storage Doctor" width="1120" height="870"></div><div class="caption">The actual HTML report of a run against a disposable local Supabase instance (2026-10-29). Ten passing checks describe that run, not universal compatibility.</div></div>
+</div></header>
+<section id="why"><div class="wrap">
+  <p class="eyebrow">Why it exists</p><h2>Storage bugs hide between interfaces.</h2>
+  <div class="problem">
+    <div class="card before"><div class="label">Without it</div><p>A file uploaded over REST looks fine in the API response, but reading it through S3 returns other bytes, or an overwrite is visible in one interface and not the other. A green status code hides it, and nobody can hand over a reproduction.</p></div>
+    <div class="card after"><div class="label">With it</div><p>Each check records expected versus observed bytes and state. Comparisons only run between compatible runs, missing evidence can never turn green, and exports carry traces, seed and a recipe that verify against their checksums before sharing.</p></div>
+  </div>
+</div></section>
+<section id="demo"><div class="wrap">
+  <p class="eyebrow">Try it · runs in your browser</p><h2>Watch a regression get caught</h2>
+  <p class="sub">A genuine 45-second recording: a healthy fixture run, the same run with injected corruption (it exits 1, as intended), the comparison, the export and its verification. Then open the real reports below.</p>
+  <div class="demo"><div id="sd-player" class="sd-player"></div>
+<div class="sd-reports">
+  <a class="sd-rep ok" href="reports/local-supabase/report.html"><span class="pill ok">10/10 PASS</span><b>Local Supabase run</b><small>Disposable local Supabase instance, recorded 2026-10-29</small></a>
+  <a class="sd-rep ok" href="reports/showcase/fixture-baseline/report.html"><span class="pill ok">10/10 PASS</span><b>Fixture baseline</b><small>Credential-free protocol fixture</small></a>
+  <a class="sd-rep bad" href="reports/showcase/fixture-candidate/report.html"><span class="pill bad">PASS → FAIL</span><b>Injected corruption</b><small>REST upload read through S3: HTTP 200, wrong bytes</small></a>
+</div>
+</div>
+  <p class="note">The corruption is injected into a local protocol fixture on purpose; it is not a Supabase defect. The local Supabase report comes from a separate run against a disposable instance.</p>
+</div></section>
+<section id="how"><div class="wrap">
+  <p class="eyebrow">How it works</p><h2>Run, compare, investigate</h2>
+  
+  <div class="cards"><div class="card"><div class="ic">01</div><h3>Ten bounded checks</h3><p>Byte integrity and state visibility across REST, S3 and TUS: uploads, overwrites, deletes and cross-interface reads, against loopback targets only.</p></div><div class="card"><div class="ic">02</div><h3>Comparison you can trust</h3><p>Bundles are checksum-verified before a PASS→FAIL is classified; incompatible runs or missing assurance are refused, not shown as green.</p></div><div class="card"><div class="ic">03</div><h3>Reproduction bundles</h3><p>Export one failing scenario with expected and observed behaviour, traces, seed and a recipe; <code>verify</code> checks the bundle before you share it.</p></div><div class="card"><div class="ic">04</div><h3>CLI and GitHub Action</h3><p>Released as v0.3.0 with package, evidence ZIP and checksums; CI covers Node 22 and 24 plus a real disposable Supabase run.</p></div></div>
+  <h3 style="margin:34px 0 14px">The flow, step by step</h3><div class="flow" role="list"><div class="node"><div class="n">01</div><b>Run</b><small>ten checks on a disposable target</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><div class="n">02</div><b>Report</b><small>JSON, Markdown and HTML + checksums</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node hl"><div class="n">03</div><b>Verify</b><small>integrity and schema of the bundle</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><div class="n">04</div><b>Compare</b><small>baseline vs candidate, compatible runs only</small></div><div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><div class="n">05</div><b>Export</b><small>focused reproduction recipe</small></div></div>
+</div></section>
+<section id="screens"><div class="wrap">
+  <p class="eyebrow">Screens</p><h2>What it looks like</h2>
+  <p class="sub">Screenshot of the injected-corruption report.</p>
+  <div class="gallery"><figure data-zoom="Failure detail — REST upload read back through S3: HTTP 200, byte equality failed, cleanup passed."><div class="frame"><img src="img/examples-showcase-images-injected-regression-detail.webp" alt="Failure detail" width="1000" height="440" loading="lazy" decoding="async"></div><figcaption><b>Failure detail</b> REST upload read back through S3: HTTP 200, byte equality failed, cleanup passed.</figcaption></figure></div>
+</div></section>
+<section id="evidence"><div class="wrap">
+  <p class="eyebrow">Evidence</p><h2>What is real, and what is not</h2>
+  
+  <div class="metrics"><div class="metric"><div class="v">33</div><div class="l">tests per Node version</div><div class="s">Node 22 and 24 in CI</div></div><div class="metric"><div class="v">10/10</div><div class="l">checks on local Supabase</div><div class="s">real disposable instance, plus Action core 3/3</div></div><div class="metric"><div class="v">0</div><div class="l">telemetry or cloud targets</div><div class="s">loopback only, no AI key</div></div></div>
+  <div class="honest" style="margin-top:18px">
+      <div class="card real"><h3><span class="pill ok">REAL</span> Built and verified</h3><ul><li>Released CLI and GitHub Action with exact-commit validation evidence</li><li>A real run against a disposable local Supabase instance and in CI</li><li>The reports and recording on this page are actual outputs</li></ul></div>
+      <div class="card sim"><h3><span class="pill warn">SIMULATED</span> Mocked or not built yet</h3><ul><li>The regression shown is injected into a local fixture, not a vendor defect</li><li>Ten passing checks describe one run, not general compatibility</li><li>No independent human usability or security review yet; v0.3.0 is in maintenance mode</li></ul></div></div>
+</div></section>
+<section id="run"><div class="wrap two">
+  <div><p class="eyebrow">Run it yourself</p><h2>Run it locally</h2>
+  <p class="sub">Node 22 or 24. The demo needs no Docker or storage account.</p>
+  <div class="code"><button class="copy" type="button">Copy</button><pre><code>git clone --branch v0.3.0 https://github.com/phlppgdfry/storage-doctor.git
+cd storage-doctor
+npm ci
+node src/cli.js demo                       # credential-free fixture, opens report.html
+
+<span class="c"># see a regression (the 2nd and 3rd commands exit 1 on purpose)</span>
+node src/cli.js demo --out reports/good
+node src/cli.js demo --inject-corruption --out reports/bad
+node src/cli.js compare --baseline reports/good/report.json --report reports/bad/report.json</code></pre></div></div>
+  <div><p class="eyebrow">Go deeper</p><h2>Read the source</h2>
+  <div class="links"><a href="https://github.com/phlppgdfry/storage-doctor"><span>Repository</span><span>github</span></a><a href="https://github.com/phlppgdfry/storage-doctor/blob/HEAD/docs/review.md"><span>Review packet</span><span>docs</span></a><a href="https://github.com/phlppgdfry/storage-doctor/blob/HEAD/docs/validation.md"><span>Validation history, including failures</span><span>docs</span></a><a href="https://github.com/phlppgdfry/storage-doctor/blob/HEAD/docs/configuration.md"><span>Configuration and real local runs</span><span>docs</span></a><a href="https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0"><span>Release v0.3.0</span><span>release</span></a><a href="https://phlppgdfry.github.io/storage-engineering-lab/"><span>Storage Engineering Lab (related)</span><span>live</span></a></div></div>
+</div></section></main>
+<footer><div class="wrap">
+  <span>Storage Doctor · A portfolio project by Philippe Godfroy</span>
+  <span><a href="https://www.philippegodfroy.com/work">More projects</a> · <a href="https://github.com/phlppgdfry/storage-doctor">Source</a></span>
+</div></footer>
+<script src="assets/showcase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.2/dist/bundle/asciinema-player.min.js"></script>
+<script src="assets/demo.js"></script>
+</body></html>
