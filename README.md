@@ -1,9 +1,10 @@
 # Storage Doctor
 
 <!-- showcase:start -->
+
 > **[▶ Live showcase](https://phlppgdfry.github.io/storage-doctor/)** — watch a 45-second recording of a regression being caught, then open the real reports: a local Supabase run, a healthy baseline and the injected failure.
 
-[![Live showcase: storage-doctor](site/demo.png)](https://phlppgdfry.github.io/storage-doctor/)
+[![Live showcase: storage-doctor](https://raw.githubusercontent.com/phlppgdfry/storage-doctor/main/site/demo.png)](https://phlppgdfry.github.io/storage-doctor/)
 <!-- showcase:end -->
 
 **Detect storage regressions. Verify the evidence. Reproduce the failure.**

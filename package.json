@@ -34,7 +34,8 @@
     "package:fresh": "node scripts/package-smoke.js --fresh",
     "package:smoke": "node scripts/package-smoke.js",
     "check:syntax": "node scripts/check-source.js",
-    "docs:check": "node scripts/check-docs.js"
+    "docs:check": "node scripts/check-docs.js",
+    "site:check": "node scripts/build-showcase.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1158.0"

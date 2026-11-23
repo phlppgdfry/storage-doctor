@@ -44,3 +44,11 @@ The public [v0.3.0 release](https://github.com/phlppgdfry/storage-doctor/release
 ## Maintenance boundary
 
 Security fixes, confirmed bugs and dependency maintenance remain allowed. New features require demonstrated user value, documented expectations and reviewable verification. No speculative provider/plugin/AI framework, permanent feature-development promise or upstream endorsement is implied. Contacting external users or publishing npm requires separate authorization.
+
+## Showcase maintenance (source checkout)
+
+The Pages artifact is assembled with `npm run site:check`. This copies tracked site assets and the three reviewed evidence bundles from `examples/` into a fresh ignored `reports/showcase-site-*` directory. Local `site/reports` copies are ignored by Git and are never publication inputs. Serve the printed directory, not the raw `site/` directory, when checking the report links.
+
+The build verifies every local HTML/CSS file reference and anchor, all report manifests, byte equality with canonical reports and the original terminal recording. The regression test removes a linked report and then tampers with it; both must fail validation. The ordinary Node 22/24 suite runs this check through `test/showcase.test.js`. External links and CDN availability require separate browser/network checks.
+
+The pinned Pages workflow builds that same artifact before upload; only its deployment job receives Pages/OIDC write permissions. It runs on main changes affecting the site, its evidence or build inputs. A documentation/showcase fix does not replace the published v0.3.0 package, tag or assets. Keep fixture corruption, real local results and integrity-versus-authenticity limitations explicit.

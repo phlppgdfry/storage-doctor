@@ -121,10 +121,6 @@ h3{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
 .gallery figure:hover .frame{transform:translateY(-2px);border-color:var(--accent)}
 .gallery figcaption{font-size:14px;color:var(--muted);margin-top:10px}
 .gallery figcaption b{color:var(--fg);font-weight:600}
-.lightbox{position:fixed;inset:0;background:rgba(5,7,10,.92);z-index:100;display:none;place-items:center;padding:24px;cursor:zoom-out}
-.lightbox.open{display:grid}
-.lightbox img{max-height:88vh;width:auto;max-width:100%;border-radius:10px}
-.lightbox p{color:#cfd8df;text-align:center;margin:12px 0 0;font-size:14px}
 video{width:100%;display:block;background:#000}
 
 /* metrics */
@@ -200,3 +196,5 @@ footer a{color:var(--muted)}
 .kpi-tile.warn .v{color:var(--warn)}
 .kpi-tile.bad .v{color:var(--bad)}
 .kpi-tile.ok .v{color:var(--ok)}
+
+a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
