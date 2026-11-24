@@ -35,17 +35,17 @@
     <div class="ctas"><a class="btn primary" href="#demo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Watch the recording</a><a class="btn" href="https://github.com/phlppgdfry/storage-doctor"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg> Source on GitHub</a></div>
     <div class="stack"><span class="chip">Node.js 22/24</span><span class="chip">Supabase Storage</span><span class="chip">S3</span><span class="chip">TUS</span><span class="chip">GitHub Action</span><span class="chip">node:test</span><span class="chip">zero telemetry</span></div>
   </div>
-  <div class="hero-visual"><div class="frame"><img src="img/examples-showcase-images-local-supabase-report.webp" alt="Storage Doctor" width="1120" height="870"></div><div class="caption">The actual HTML report of a run against a disposable local Supabase instance (2026-10-29). Ten passing checks describe that run, not universal compatibility.</div></div>
+  <div class="hero-visual"><div class="frame"><img src="img/examples-showcase-images-local-supabase-report.webp" alt="Actual local Supabase evidence report: ten checks passed in the recorded disposable run." width="1120" height="870"></div><div class="caption">The actual HTML report of a run against a disposable local Supabase instance (2026-10-29). Ten passing checks describe that run, not universal compatibility.</div></div>
 </div></header>
 <section id="why"><div class="wrap">
   <p class="eyebrow">Why it exists</p><h2>Storage bugs hide between interfaces.</h2>
   <div class="problem">
     <div class="card before"><div class="label">Without it</div><p>A file uploaded over REST looks fine in the API response, but reading it through S3 returns other bytes, or an overwrite is visible in one interface and not the other. A green status code hides it, and nobody can hand over a reproduction.</p></div>
-    <div class="card after"><div class="label">With it</div><p>Each check records expected versus observed bytes and state. Comparisons only run between compatible runs, missing evidence can never turn green, and exports carry traces, seed and a recipe that verify against their checksums before sharing.</p></div>
+    <div class="card after"><div class="label">With it</div><p>Each check records expected versus observed bytes and state. Comparisons only run between compatible runs, missing evidence can never turn green, and exports carry traces, seed and a recipe that can be checked against their manifest before sharing. Checksums verify integrity, not authorship.</p></div>
   </div>
 </div></section>
 <section id="demo"><div class="wrap">
-  <p class="eyebrow">Try it · runs in your browser</p><h2>Watch a regression get caught</h2>
+  <p class="eyebrow">Recorded demo · no installation</p><h2>Watch a regression get caught</h2>
   <p class="sub">A genuine 45-second recording: a healthy fixture run, the same run with injected corruption (it exits 1, as intended), the comparison, the export and its verification. Then open the real reports below.</p>
   <div class="demo"><div id="sd-player" class="sd-player"></div>
 <div class="sd-reports">
@@ -54,7 +54,7 @@
   <a class="sd-rep bad" href="reports/showcase/fixture-candidate/report.html"><span class="pill bad">PASS → FAIL</span><b>Injected corruption</b><small>REST upload read through S3: HTTP 200, wrong bytes</small></a>
 </div>
 </div>
-  <p class="note">The corruption is injected into a local protocol fixture on purpose; it is not a Supabase defect. The local Supabase report comes from a separate run against a disposable instance.</p>
+  <p class="note">Recorded output playback; long pauses are shortened. <a href="https://github.com/phlppgdfry/storage-doctor/blob/v0.3.0/examples/showcase/transcript.txt">Read the text transcript</a>. The corruption is injected into a local protocol fixture on purpose; it is not a Supabase defect. The local Supabase report comes from a separate run against a disposable instance.</p>
 </div></section>
 <section id="how"><div class="wrap">
   <p class="eyebrow">How it works</p><h2>Run, compare, investigate</h2>
@@ -65,15 +65,15 @@
 <section id="screens"><div class="wrap">
   <p class="eyebrow">Screens</p><h2>What it looks like</h2>
   <p class="sub">Screenshot of the injected-corruption report.</p>
-  <div class="gallery"><figure data-zoom="Failure detail — REST upload read back through S3: HTTP 200, byte equality failed, cleanup passed."><div class="frame"><img src="img/examples-showcase-images-injected-regression-detail.webp" alt="Failure detail" width="1000" height="440" loading="lazy" decoding="async"></div><figcaption><b>Failure detail</b> REST upload read back through S3: HTTP 200, byte equality failed, cleanup passed.</figcaption></figure></div>
+  <div class="gallery"><figure><a href="img/examples-showcase-images-injected-regression-detail.webp" aria-label="Open the full-size injected fixture failure screenshot"><div class="frame"><img src="img/examples-showcase-images-injected-regression-detail.webp" alt="Intentional fixture failure: REST upload read through S3 returned HTTP 200 but byte equality failed; cleanup passed." width="1000" height="440" loading="lazy" decoding="async"></div></a><figcaption><b>Failure detail</b> REST upload read back through S3: HTTP 200, byte equality failed, cleanup passed.</figcaption></figure></div>
 </div></section>
 <section id="evidence"><div class="wrap">
   <p class="eyebrow">Evidence</p><h2>What is real, and what is not</h2>
   
-  <div class="metrics"><div class="metric"><div class="v">33</div><div class="l">tests per Node version</div><div class="s">Node 22 and 24 in CI</div></div><div class="metric"><div class="v">10/10</div><div class="l">checks on local Supabase</div><div class="s">real disposable instance, plus Action core 3/3</div></div><div class="metric"><div class="v">0</div><div class="l">telemetry or cloud targets</div><div class="s">loopback only, no AI key</div></div></div>
+  <div class="metrics"><div class="metric"><div class="v">33</div><div class="l">v0.3.0 tests per Node version</div><div class="s">Node 22 and 24 in CI</div></div><div class="metric"><div class="v">10/10</div><div class="l">checks on local Supabase</div><div class="s">real disposable instance, plus Action core 3/3</div></div><div class="metric"><div class="v">0</div><div class="l">telemetry or cloud targets</div><div class="s">loopback only, no AI key</div></div></div>
   <div class="honest" style="margin-top:18px">
       <div class="card real"><h3><span class="pill ok">REAL</span> Built and verified</h3><ul><li>Released CLI and GitHub Action with exact-commit validation evidence</li><li>A real run against a disposable local Supabase instance and in CI</li><li>The reports and recording on this page are actual outputs</li></ul></div>
-      <div class="card sim"><h3><span class="pill warn">SIMULATED</span> Mocked or not built yet</h3><ul><li>The regression shown is injected into a local fixture, not a vendor defect</li><li>Ten passing checks describe one run, not general compatibility</li><li>No independent human usability or security review yet; v0.3.0 is in maintenance mode</li></ul></div></div>
+      <div class="card sim"><h3><span class="pill warn">SCOPE</span> Fixture and limitations</h3><ul><li>The regression shown is injected into a local fixture, not a vendor defect</li><li>Ten passing checks describe one run, not general compatibility</li><li>No independent human usability or security review yet; v0.3.0 is in maintenance mode</li></ul></div></div>
 </div></section>
 <section id="run"><div class="wrap two">
   <div><p class="eyebrow">Run it yourself</p><h2>Run it locally</h2>
@@ -81,7 +81,7 @@
   <div class="code"><button class="copy" type="button">Copy</button><pre><code>git clone --branch v0.3.0 https://github.com/phlppgdfry/storage-doctor.git
 cd storage-doctor
 npm ci
-node src/cli.js demo                       # credential-free fixture, opens report.html
+node src/cli.js demo                       # credential-free fixture; prints the report.html path
 
 <span class="c"># see a regression (the 2nd and 3rd commands exit 1 on purpose)</span>
 node src/cli.js demo --out reports/good
@@ -91,7 +91,7 @@ node src/cli.js compare --baseline reports/good/report.json --report reports/bad
   <div class="links"><a href="https://github.com/phlppgdfry/storage-doctor"><span>Repository</span><span>github</span></a><a href="https://github.com/phlppgdfry/storage-doctor/blob/HEAD/docs/review.md"><span>Review packet</span><span>docs</span></a><a href="https://github.com/phlppgdfry/storage-doctor/blob/HEAD/docs/validation.md"><span>Validation history, including failures</span><span>docs</span></a><a href="https://github.com/phlppgdfry/storage-doctor/blob/HEAD/docs/configuration.md"><span>Configuration and real local runs</span><span>docs</span></a><a href="https://github.com/phlppgdfry/storage-doctor/releases/tag/v0.3.0"><span>Release v0.3.0</span><span>release</span></a><a href="https://phlppgdfry.github.io/storage-engineering-lab/"><span>Storage Engineering Lab (related)</span><span>live</span></a></div></div>
 </div></section></main>
 <footer><div class="wrap">
-  <span>Storage Doctor · A portfolio project by Philippe Godfroy</span>
+  <span>Storage Doctor · A portfolio project by Philippe Godfroy · Developed with AI assistance</span>
   <span><a href="https://www.philippegodfroy.com/work">More projects</a> · <a href="https://github.com/phlppgdfry/storage-doctor">Source</a></span>
 </div></footer>
 <script src="assets/showcase.js"></script>

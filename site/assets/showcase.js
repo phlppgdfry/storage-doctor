@@ -1,4 +1,4 @@
-// Showcase kit — theme toggle, copy buttons, lightbox. No dependencies.
+// Showcase kit — theme toggle and copy buttons. No dependencies.
 (function () {
   var root = document.documentElement;
   try { var t = localStorage.getItem('sc-theme'); if (t) root.setAttribute('data-theme', t); } catch (e) {}
@@ -16,17 +16,6 @@
       (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function () {
         b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1400);
       }, function () { b.textContent = 'Select & copy'; });
-    });
-  });
-  var lb = document.createElement('div'); lb.className = 'lightbox'; lb.setAttribute('role', 'dialog');
-  lb.innerHTML = '<div><img alt=""><p></p></div>'; document.body.appendChild(lb);
-  function close() { lb.classList.remove('open'); }
-  lb.addEventListener('click', close);
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-  document.querySelectorAll('[data-zoom]').forEach(function (f) {
-    f.addEventListener('click', function () {
-      var img = f.querySelector('img'); lb.querySelector('img').src = img.src; lb.querySelector('img').alt = img.alt;
-      lb.querySelector('p').textContent = f.getAttribute('data-zoom') || ''; lb.classList.add('open');
     });
   });
 })();
